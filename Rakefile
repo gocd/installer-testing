@@ -48,7 +48,7 @@ end
 task :test_installers do
   distributions = ['debian-8', 'ubuntu-12.04', 'ubuntu-14.04', 'ubuntu-16.04', 'centos-6', 'centos-7']
   partition(distributions).each do |box|
-    begin      
+    begin
       sh "GO_VERSION=#{full_version} vagrant up #{box} --provider #{ENV['PROVIDER'] || 'virtualbox'} --provision --no-parallel"
     rescue => e
       raise "Installer testing failed. Error message #{e.message}"
@@ -101,6 +101,12 @@ task :upgrade_tests_w_postgres do
         end
       end
   end
+end
+
+task :verify_osx_signer do
+  sh "curl -L -o go-server-#{full_version}-osx.zip --fail  https://download.gocd.org/experimental/binaries/#{full_version}/osx/go-server-#{full_version}-osx.zip"
+  sh "unzip go-server-#{full_version}-osx.zip"
+  sh "codesign --verify --verbose Go\\ Server.app"
 end
 
 def download_addons
