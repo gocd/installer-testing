@@ -22,7 +22,7 @@ Vagrant.configure(2) do |config|
     'ubuntu-12.04' => {virtualbox: 'boxcutter/ubuntu1204'},
     'ubuntu-14.04' => {virtualbox: 'boxcutter/ubuntu1404'},
     'ubuntu-16.04' => {virtualbox: 'boxcutter/ubuntu1604'},
-    'debian-7'     => {virtualbox: 'boxcutter/debian7'},
+    'debian-9'     => {virtualbox: 'bento/debian-9.0'},
     'debian-8'     => {virtualbox: 'boxcutter/debian8'},
     'centos-6'     => {virtualbox: 'boxcutter/centos68'},
     'centos-7'     => {virtualbox: 'boxcutter/centos73'},
@@ -63,7 +63,6 @@ Vagrant.configure(2) do |config|
 
         configure_ppa(vm_config) if name =~ /(ubuntu-(12|14|16))/
         configure_jessie_backports(vm_config) if name =~ /debian-8/
-        configure_squeeze(vm_config) if name =~ /debian-7/
 
 
         vm_config.vm.provision "shell", inline: "apt-get install -y rake ruby-json unzip git"

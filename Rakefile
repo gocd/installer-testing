@@ -46,7 +46,7 @@ def partition(things)
 end
 
 task :test_installers do
-  distributions = ['debian-8', 'ubuntu-12.04', 'ubuntu-14.04', 'ubuntu-16.04', 'centos-6', 'centos-7']
+  distributions = ['debian-8', 'debian-9', 'ubuntu-12.04', 'ubuntu-14.04', 'ubuntu-16.04', 'centos-6', 'centos-7']
   partition(distributions).each do |box|
     begin      
       sh "GO_VERSION=#{full_version} vagrant up #{box} --provider #{ENV['PROVIDER'] || 'virtualbox'} --provision --no-parallel"
