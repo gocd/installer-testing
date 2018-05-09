@@ -50,11 +50,13 @@ def partition(things)
 end
 
 class Distro
-  attr_reader :name, :version
+  attr_reader :name, :version, :task_name
 
-  def initialize(name, version)
+  def initialize(name, version, task_name)
     @name = name
     @version = version
+    @task_name = task_name
+    @random_string = SecureRandom.hex(3)
   end
 
   def image
@@ -62,7 +64,11 @@ class Distro
   end
 
   def box_name
-    "#{name}-#{version}"
+    "#{name}-#{version}-#{task_name}"
+  end
+
+  def container_name
+    "#{name}-#{version}-#{task_name}-#{@random_string}"
   end
 
   def <=>(other)
@@ -141,7 +147,7 @@ class CentosDistro < Distro
 
   def install_build_tools
     [
-        "yum install -y centos-release-scl",
+        "yum install -y centos-release-scl initscripts",
         "yum install -y unzip git rh-ruby22-rubygem-rake",
         "/bin/bash -lc 'echo source /opt/rh/rh-ruby22/enable > /etc/profile.d/ruby-22.sh'"
     ]
@@ -151,12 +157,12 @@ end
 def boot_container(box)
   pwd = File.dirname(__FILE__)
 
-  sh "docker stop #{box.box_name}" do |ok, res|
-    puts "box #{box.box_name} does not exist, ignoring!"
+  sh "docker stop #{box.container_name}" do |ok, res|
+    puts "box #{box.container_name} does not exist, ignoring!"
   end
 
-  sh "docker rm #{box.box_name}" do |ok, res|
-    puts "box #{box.box_name} does not exist, ignoring!"
+  sh "docker rm #{box.container_name}" do |ok, res|
+    puts "box #{box.container_name} does not exist, ignoring!"
   end
 
   sh "docker pull #{box.image}"
@@ -171,72 +177,72 @@ def boot_container(box)
     mounts[host_dir] = cache_dir
   end
 
-  sh %Q{docker run #{mounts.collect {|k, v| "--volume #{k}:#{v}"}.join(' ')} --rm -d -it --name #{box.box_name} #{box.image} /bin/bash}
+  sh %Q{docker run #{mounts.collect {|k, v| "--volume #{k}:#{v}"}.join(' ')} --rm -d -it --name #{box.container_name} #{box.image} /bin/bash}
 
   box.prepare_commands.each do |each_command|
-    sh "docker exec #{box.box_name} #{each_command}"
+    sh "docker exec #{box.container_name} #{each_command}"
   end
 
   box.install_jdk.each do |each_command|
-    sh "docker exec #{box.box_name} #{each_command}"
+    sh "docker exec #{box.container_name} #{each_command}"
   end
 
   box.install_build_tools.each do |each_command|
-    sh "docker exec #{box.box_name} #{each_command}"
+    sh "docker exec #{box.container_name} #{each_command}"
   end
 end
 
-task :test_installers do
+task :test_installers do |t|
   boxes = [
-      UbuntuDistro.new('ubuntu', '12.04'),
-      UbuntuDistro.new('ubuntu', '14.04'),
-      UbuntuDistro.new('ubuntu', '16.04'),
-      DebianDistro.new('debian', '8'),
-      CentosDistro.new('centos', '6'),
-      CentosDistro.new('centos', '7'),
+      UbuntuDistro.new('ubuntu', '12.04', t.name),
+      UbuntuDistro.new('ubuntu', '14.04', t.name),
+      UbuntuDistro.new('ubuntu', '16.04', t.name),
+      DebianDistro.new('debian', '8', t.name),
+      CentosDistro.new('centos', '6', t.name),
+      CentosDistro.new('centos', '7', t.name),
   ]
 
   partition(boxes).each do |box|
     boot_container(box)
     begin
       env = {GO_VERSION: full_version}
-      sh "docker exec #{box.box_name} #{box.run_test('fresh', env)}"
+      sh "docker exec #{box.container_name} #{box.run_test('fresh', env)}"
     rescue => e
       raise "Installer testing failed. Error message #{e.message} #{e.backtrace.join("\n")}"
     ensure
-      sh "docker stop #{box.box_name}"
+      sh "docker stop #{box.container_name}"
     end
   end
 end
 
 
-task :test_installers_w_postgres do
+task :test_installers_w_postgres do |t|
   postgres_boxes = [
-      UbuntuDistro.new('ubuntu', '14.04'),
-      CentosDistro.new('centos', '7')
+      # UbuntuDistro.new('ubuntu', '14.04', t.name),
+      CentosDistro.new('centos', '7', t.name),
   ]
 
   partition(postgres_boxes).each do |box|
     boot_container(box)
     begin
       env = {GO_VERSION: full_version, USE_POSTGRES: true}
-      sh "docker exec #{box.box_name} #{box.run_test('fresh', env)}"
+      sh "docker exec #{box.container_name} #{box.run_test('fresh', env)}"
     rescue => e
       raise "Installer testing failed. Error message #{e.message} #{e.backtrace.join("\n")}"
     ensure
-      sh "docker stop #{box.box_name}"
+      sh "docker stop #{box.container_name}"
     end
   end
 end
 
-task :upgrade_tests do
+task :upgrade_tests do |t|
   upgrade_boxes = [
-      UbuntuDistro.new('ubuntu', '12.04'),
-      UbuntuDistro.new('ubuntu', '14.04'),
-      UbuntuDistro.new('ubuntu', '16.04'),
-      DebianDistro.new('debian', '8'),
-      CentosDistro.new('centos', '6'),
-      CentosDistro.new('centos', '7'),
+      UbuntuDistro.new('ubuntu', '12.04', t.name),
+      UbuntuDistro.new('ubuntu', '14.04', t.name),
+      UbuntuDistro.new('ubuntu', '16.04', t.name),
+      DebianDistro.new('debian', '8', t.name),
+      CentosDistro.new('centos', '6', t.name),
+      CentosDistro.new('centos', '7', t.name),
   ]
 
   partition(upgrade_boxes).each do |box|
@@ -244,31 +250,31 @@ task :upgrade_tests do
       boot_container(box)
       begin
         env = {GO_VERSION: full_version, UPGRADE_VERSIONS_LIST: from_version}
-        sh "docker exec #{box.box_name} #{box.run_test('upgrade_test', env)}"
+        sh "docker exec #{box.container_name} #{box.run_test('upgrade_test', env)}"
       rescue => e
         raise "Installer testing failed. Error message #{e.message} #{e.backtrace.join("\n")}"
       ensure
-        sh "docker stop #{box.box_name}"
+        sh "docker stop #{box.container_name}"
       end
     end
   end
 end
 
-task :upgrade_tests_w_postgres do
+task :upgrade_tests_w_postgres do |t|
   download_addons
   postgres_upgrade_boxes = [
-      UbuntuDistro.new('ubuntu', '14.04'),
-      CentosDistro.new('centos', '7'),
+      UbuntuDistro.new('ubuntu', '14.04', t.name),
+      CentosDistro.new('centos', '7', t.name),
   ]
   partition(postgres_upgrade_boxes).each do |box|
     boot_container(box)
     begin
       env = {GO_VERSION: full_version, UPGRADE_VERSIONS_LIST: from_version, USE_POSTGRES: true}
-      sh "docker exec #{box.box_name} #{box.run_test('upgrade_test', env)}"
+      sh "docker exec #{box.container_name} #{box.run_test('upgrade_test', env)}"
     rescue => e
       raise "Installer testing failed. Error message #{e.message} #{e.backtrace.join("\n")}"
     ensure
-      sh "docker stop #{box.box_name}"
+      sh "docker stop #{box.container_name}"
     end
   end
 end

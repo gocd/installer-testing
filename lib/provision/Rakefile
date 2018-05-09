@@ -58,10 +58,11 @@ class Debian
   def setup_postgres
     sh("apt-get install -y postgresql-9.3")
     sh("apt-get install -y postgresql-contrib-9.3")
-    sh(%Q{su - postgres bash -c 'createdb -U postgres cruise'})
-    sh(%Q{su - postgres bash -c 'sed -i 's/peer/md5/g' /etc/postgresql/9.3/main/pg_hba.conf'})
-    sh(%Q{su - postgres psql -c "ALTER USER postgres WITH PASSWORD 'postgres';"})
-    sh("/etc/init.d/postgresql restart")
+    sh("service postgresql status || service postgresql start")
+    sh(%Q{su - postgres -c bash -c 'createdb -U postgres cruise'})
+    sh(%Q{su - postgres -c bash -c 'sed -i 's/peer/md5/g' /etc/postgresql/9.3/main/pg_hba.conf'})
+    sh(%Q{su - postgres -c /bin/bash -c "psql -c \\"ALTER USER postgres WITH PASSWORD 'postgres'\\";"})
+    sh("service postgresql restart")
   end
 
 end
@@ -85,12 +86,12 @@ class Redhat
   def setup_postgres
     sh("yum install --assumeyes postgresql-server")
     sh("yum install --assumeyes postgresql-contrib")
-    sh(%Q{su - postgres bash -c 'initdb -D /var/lib/pgsql/data'})
-    sh("service postgresql start")
-    sh(%Q{su - postgres bash -c 'sed -i 's/peer/md5/g' /var/lib/pgsql/data/pg_hba.conf'})
-    sh(%Q{su - postgres psql -c "ALTER USER postgres WITH PASSWORD 'postgres';"})
-    sh("service postgresql restart")
-    sh(%Q{su - postgres bash -c 'createdb -U postgres cruise'})
+    sh(%Q{su - postgres -c bash -c 'initdb -D /var/lib/pgsql/data'})
+    sh(%Q{su - postgres -c bash -c 'pg_ctl -D /var/lib/pgsql/data -l /var/lib/pgsql/data/logfile start'})
+    sh(%Q{su - postgres -c bash -c 'sed -i 's/peer/md5/g' /var/lib/pgsql/data/pg_hba.conf'})
+    sh(%Q{su - postgres -c /bin/bash -c "psql -c \\"ALTER USER postgres WITH PASSWORD 'postgres'\\";"})
+    sh(%Q{su - postgres -c bash -c 'createdb -U postgres cruise'})
+    sh(%Q{su - postgres -c bash -c 'pg_ctl -D /var/lib/pgsql/data -l /var/lib/pgsql/data/logfile restart'})
   end
 
 end
@@ -107,7 +108,7 @@ end
     end
 
     task :install_server do
-      sh('service go-server stop 2>/dev/null || true')
+      sh('/etc/init.d/go-server stop 2>/dev/null || true')
       klass.new.install('go-server', ENV['GO_VERSION'])
       if ENV['USE_POSTGRES']
         unless @postgres_setup_done
@@ -140,7 +141,7 @@ end
 
     def setup_postgres_addon(version)
       p 'Setting up postgres addon'
-      sh('service go-server stop 2>/dev/null || true')
+      sh('/etc/init.d/go-server stop 2>/dev/null || true')
       addon = addon_for version
       sh('echo ' 'GO_SERVER_SYSTEM_PROPERTIES=\"\$GO_SERVER_SYSTEM_PROPERTIES -Dgo.database.provider=com.thoughtworks.go.postgresql.PostgresqlDatabase\"' '>> /etc/default/go-server')
 
