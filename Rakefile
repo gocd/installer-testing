@@ -218,7 +218,7 @@ end
 
 task :test_installers_w_postgres do |t|
   postgres_boxes = [
-      # UbuntuDistro.new('ubuntu', '14.04', t.name),
+      UbuntuDistro.new('ubuntu', '16.04', t.name),
       CentosDistro.new('centos', '7', t.name),
   ]
 
@@ -267,14 +267,16 @@ task :upgrade_tests_w_postgres do |t|
       CentosDistro.new('centos', '7', t.name),
   ]
   partition(postgres_upgrade_boxes).each do |box|
-    boot_container(box)
-    begin
-      env = {GO_VERSION: full_version, UPGRADE_VERSIONS_LIST: from_version, USE_POSTGRES: true}
-      sh "docker exec #{box.container_name} #{box.run_test('upgrade_test', env)}"
-    rescue => e
-      raise "Installer testing failed. Error message #{e.message} #{e.backtrace.join("\n")}"
-    ensure
-      sh "docker stop #{box.container_name}"
+    UPGRADE_VERSIONS_LIST.split(/\s*,\s*/).each do |from_version|
+      boot_container(box)
+      begin
+        env = {GO_VERSION: full_version, UPGRADE_VERSIONS_LIST: from_version, USE_POSTGRES: true}
+        sh "docker exec #{box.container_name} #{box.run_test('upgrade_test', env)}"
+      rescue => e
+        raise "Installer testing failed. Error message #{e.message} #{e.backtrace.join("\n")}"
+      ensure
+        sh "docker stop #{box.container_name}"
+      end
     end
   end
 end
