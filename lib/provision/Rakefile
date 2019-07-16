@@ -147,7 +147,7 @@ end
       chmod_R 0755, '/vagrant/provision/filesystem/start-stop-gocd-server-agent.sh'
       sh('./vagrant/provision/filesystem/start-stop-gocd-server-agent.sh server stop')
       addon = addon_for version
-      if version < Gem::Version.new('19.6.0')
+      if Gem::Version.new(version) < Gem::Version.new('19.6.0')
         sh('echo GO_SERVER_SYSTEM_PROPERTIES=\"\$GO_SERVER_SYSTEM_PROPERTIES -Dgo.database.provider=com.thoughtworks.go.postgresql.PostgresqlDatabase\" >> /etc/default/go-server')
       else
         sh(%(su - go bash -c 'echo "wrapper.java.additional.101=-Dgo.database.provider=com.thoughtworks.go.postgresql.PostgresqlDatabase"  >> /var/lib/go-server/wrapper-config/wrapper-properties.conf'))

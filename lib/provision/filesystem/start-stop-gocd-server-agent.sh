@@ -5,7 +5,7 @@ if [ $# -ne 2 ]; then
     exit 1
 fi
 
-if [ $1 -eq "agent" ]; then  
+if [ "$1" == "agent" ]; then  
 
     if [ -f "/etc/init.d/go-agent" ]; then
         echo " Using /etc/init.d/go-agent to $2 agent "
@@ -16,9 +16,11 @@ if [ $1 -eq "agent" ]; then
     elif [ -f "/etc/init/go-agent.conf" ]; then
         echo " Using upstart to $2 agent "
         $2 go-agent
+    else
+        echo " Service file for agent not found. Nothing to $2."
     fi
 
-elif [ $1 -eq "server" ]; then  
+elif [ "$1" == "server" ]; then  
 
     if [ -f "/etc/init.d/go-server" ]; then
         echo " Using /etc/init.d/go-server to $2 server "
@@ -29,8 +31,8 @@ elif [ $1 -eq "server" ]; then
     elif [ -f "/etc/init/go-server.conf" ]; then
         echo " Using upstart to $2 server "
         $2 go-server
+    else
+        echo " Service file for server not found. Nothing to $2."
     fi
-
-
 fi
 
