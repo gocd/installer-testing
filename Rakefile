@@ -97,11 +97,9 @@ class DebianDistro < Distro
   end
 
   def install_jdk
-    [
-      "/bin/bash -lc 'echo deb [check-valid-until=no] http://archive.debian.org/debian jessie-backports main > /etc/apt/sources.list.d/jessie-backports.list'",
-      %(/bin/bash -lc 'echo "Acquire::Check-Valid-Until "false";" >> /etc/apt/apt.conf'),
-      'apt-get update',
-      'apt-get -t jessie-backports install -y openjdk-8-jre'
+    ['curl https://download.java.net/openjdk/jdk11/ri/openjdk-11+28_linux-x64_bin.tar.gz -o /home/openjdk-11+28_linux-x64_bin.tar.gz',
+      'tar -xvf /home/openjdk-11+28_linux-x64_bin.tar.gz -C /home/',
+      'ln -s -f /home/jdk-11/bin/java /usr/bin/java'
     ]
   end
 
@@ -116,10 +114,12 @@ class UbuntuDistro < DebianDistro
   def install_jdk
     [
       'apt-get install -y software-properties-common python-software-properties',
-      'add-apt-repository ppa:openjdk-r/ppa',
       'add-apt-repository ppa:git-core/ppa',
       'apt-get update',
-      'apt-get install -y openjdk-8-jre git'
+      'apt-get install -y git',
+      'curl https://download.java.net/openjdk/jdk11/ri/openjdk-11+28_linux-x64_bin.tar.gz -o /home/openjdk-11+28_linux-x64_bin.tar.gz',
+      'tar -xvf /home/openjdk-11+28_linux-x64_bin.tar.gz -C /home/',
+      'ln -s -f /home/jdk-11/bin/java /usr/bin/java'
     ]
   end
 end
@@ -140,7 +140,10 @@ class CentosDistro < Distro
   end
 
   def install_jdk
-    ['yum install -y java-1.8.0-openjdk']
+    ['curl https://download.java.net/openjdk/jdk11/ri/openjdk-11+28_linux-x64_bin.tar.gz -o /home/openjdk-11+28_linux-x64_bin.tar.gz',
+      'tar -xvf /home/openjdk-11+28_linux-x64_bin.tar.gz -C /home/',
+      'ln -s -f /home/jdk-11/bin/java /usr/bin/java'
+    ]
   end
 
   def install_build_tools
@@ -236,7 +239,6 @@ task :upgrade_tests do |t|
   upgrade_boxes = [
     UbuntuDistro.new('ubuntu', '14.04', t.name),
     UbuntuDistro.new('ubuntu', '16.04', t.name),
-    DebianDistro.new('debian', '8', t.name),
     CentosDistro.new('centos', '6', t.name),
     CentosDistro.new('centos', '7', t.name)
   ]
