@@ -147,11 +147,13 @@ class CentosDistro < Distro
   end
 
   def install_build_tools
+    git = @version == "6" ? "rh-git29" : "rh-git218"
+
     [
       'yum install -y centos-release-scl initscripts sysvinit-tools',
-      'yum install -y unzip rh-git29 rh-ruby24-rubygem-rake',
+      "yum install -y unzip #{git} rh-ruby24-rubygem-rake",
       "/bin/bash -lc 'echo source /opt/rh/rh-ruby24/enable > /etc/profile.d/ruby-24.sh'",
-      "/bin/bash -lc 'echo source /opt/rh/rh-git29/enable > /etc/profile.d/rh-git29.sh'"
+      "/bin/bash -lc 'echo source /opt/rh/#{git}/enable > /etc/profile.d/#{git}.sh'"
     ]
   end
 end
