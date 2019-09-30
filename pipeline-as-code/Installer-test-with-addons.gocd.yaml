@@ -5,7 +5,7 @@ pipelines:
     label_template: ${COUNT}
     lock_behavior: none
     environment_variables:
-      GO_VERSION: 19.9.0
+      GO_VERSION: 19.10.0
     materials:
       git:
         git: https://git.gocd.io/git/gocd/installer-testing
