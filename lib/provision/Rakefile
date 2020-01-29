@@ -89,7 +89,7 @@ class Redhat
     sh('yum install --assumeyes postgresql-server')
     sh('yum install --assumeyes postgresql-contrib')
     sh(%(su - postgres -c bash -c 'initdb -D /var/lib/pgsql/data'))
-    sh(%(su - postgres -c bash -c 'pg_ctl -D /var/lib/pgsql/data -l /var/lib/pgsql/data/logfile start'))
+    sh(%(su - postgres -c bash -c 'pg_ctl -D /var/lib/pgsql/data -l /var/lib/pgsql/data/logfile start  -w -t 60'))
     sh(%(su - postgres -c bash -c 'sed -i 's/peer/md5/g' /var/lib/pgsql/data/pg_hba.conf'))
     sh(%(su - postgres -c /bin/bash -c "psql -c \\"ALTER USER postgres WITH PASSWORD 'postgres'\\";"))
     sh(%(su - postgres -c bash -c 'createdb -U postgres cruise'))
