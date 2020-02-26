@@ -124,6 +124,7 @@ end
         sh ('unlink /usr/bin/java')
         sh ('ln -s -f /home/jdk-11/bin/java /usr/bin/java')
       end
+      sh(%(echo "wrapper.java.additional.102=-Dgo.server.enable.tls=true"  >> /usr/share/go-server/wrapper-config/wrapper-properties.conf))
       chmod_R 0o755, '/vagrant/provision/filesystem/start-stop-gocd-server-agent.sh'
       sh("./vagrant/provision/filesystem/start-stop-gocd-server-agent.sh server start")
       server_status
@@ -151,9 +152,7 @@ end
         sh ('unlink /usr/bin/java')
         sh ('ln -s -f /home/jdk-11/bin/java /usr/bin/java')
       end
-      if Gem::Version.new(ENV['GO_INITIAL_VERSION'].split('-')[0]) < Gem::Version.new('20.2.0')
-        sh(%(echo "wrapper.java.additional.101=-Dgo.server.enable.tls=true"  >> /usr/share/go-server/wrapper-config/wrapper-properties.conf))
-      end
+
       chmod_R 0o755, '/vagrant/provision/filesystem/start-stop-gocd-server-agent.sh'
       sh("./vagrant/provision/filesystem/start-stop-gocd-server-agent.sh server start")
       server_status
