@@ -154,14 +154,28 @@ class CentosDistro < Distro
   end
 
   def install_build_tools
-    git = @version == "6" ? "rh-git29" : "rh-git218"
+    git  = is_legacy? ? "sclo-git212" : "git"
+    rake = is_legacy? ? "rh-ruby24-rubygem-rake" : "rubygem-rake"
 
     [
-      'yum install -y centos-release-scl initscripts sysvinit-tools',
-      "yum install -y unzip #{git} rh-ruby24-rubygem-rake",
-      "/bin/bash -lc 'echo source /opt/rh/rh-ruby24/enable > /etc/profile.d/ruby-24.sh'",
-      "/bin/bash -lc 'echo source /opt/rh/#{git}/enable > /etc/profile.d/#{git}.sh'"
-    ]
+      "yum -y install initscripts sysvinit-tools",
+      "yum -y install unzip #{git} #{rake}",
+    ].tap { |cmds| wrap_scl_and_activate(cmds, git, "rh-ruby24") if is_legacy? }
+  end
+
+  private
+
+  def is_legacy?
+    %w(6 7).include?(@version)
+  end
+
+  def wrap_scl_and_activate(cmds, *names)
+    cmds.tap { |cmds|
+      cmds.unshift 'yum -y install centos-release-scl'
+      names.each { |name|
+        cmds << "/bin/bash -lc 'echo source /opt/rh/#{name}/enable > /etc/profile.d/#{name}.sh'"
+      }
+    }
   end
 end
 
