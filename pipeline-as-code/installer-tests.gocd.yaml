@@ -27,7 +27,7 @@ pipelines:
         name: installers
       metadata-uploaded-and-cdn-refreshed:
         pipeline: code-sign
-        stage: invalidate-distributions
+        stage: cloudfront-invalidation
         name: code-sign
     stages:
     - install-tests:
