@@ -27,7 +27,7 @@ pipelines:
         name: installers
       UploadInstallers:
         pipeline: code-sign
-        stage: metadata
+        stage: invalidate-distributions
         name: code-sign
     stages:
     - install-tests:
