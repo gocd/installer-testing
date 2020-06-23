@@ -51,7 +51,7 @@ pipelines:
             timeout: 0
             run_instances: '5'
             environment_variables:
-              UPGRADE_VERSIONS_LIST: 19.8.0-9915, 19.10.0-10357, 20.1.0-11114
+              UPGRADE_VERSIONS_LIST: 20.5.0-11820
             elastic_profile_id: installers-testing
             tasks:
             - exec:
