@@ -222,7 +222,6 @@ task :test_installers do |t|
       UbuntuDistro.new('ubuntu', '14.04', t.name),
       UbuntuDistro.new('ubuntu', '16.04', t.name),
       DebianDistro.new('debian', '8', t.name),
-      CentosDistro.new('centos', '6', t.name),
       CentosDistro.new('centos', '7', t.name),
   ]
 
@@ -263,7 +262,6 @@ task :upgrade_tests do |t|
     UbuntuDistro.new('ubuntu', '14.04', t.name),
     UbuntuDistro.new('ubuntu', '16.04', t.name),
     DebianDistro.new('debian', '8', t.name),
-    CentosDistro.new('centos', '6', t.name),
     CentosDistro.new('centos', '7', t.name)
   ]
 

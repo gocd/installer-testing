@@ -6,7 +6,7 @@
 
 ## Run test
 
-Run this command to test latest experimental build on 4 environments - Ubuntu 14.04, Ubuntu 16.04, debian 8, Centos6 and Centos7
+Run this command to test latest experimental build on 4 environments - Ubuntu 14.04, Ubuntu 16.04, debian 8 and Centos7
 
 ```rake test_installers```
 
