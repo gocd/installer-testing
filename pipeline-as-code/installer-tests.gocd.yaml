@@ -9,7 +9,7 @@ pipelines:
     label_template: ${COUNT}
     lock_behavior: none
     environment_variables:
-      GO_VERSION: 21.2.0
+      GO_VERSION: 21.3.0
     tracking_tool:
       link: https://github.com/gocd/gocd/issues/${ID}
       regex: '##(\d+)'
