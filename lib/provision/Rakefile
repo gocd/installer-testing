@@ -17,7 +17,6 @@
 $stdout.sync = true
 $stderr.sync = true
 
-require 'open-uri'
 require 'timeout'
 require 'json'
 require 'net/http'

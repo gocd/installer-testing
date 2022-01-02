@@ -308,7 +308,7 @@ task :verify_osx_signer do
 end
 
 def download_addons
-  json = JSON.parse(open(STABLE_RELEASES_JSON_URL).read)
+  json = JSON.parse(URI.open(STABLE_RELEASES_JSON_URL).read)
   myhash = json.sort_by { |a| a['go_full_version'] }.reverse
   myhash.each_with_index do |key, index|
     next unless UPGRADE_VERSIONS_LIST.include? myhash[index]['go_full_version']
@@ -320,7 +320,7 @@ def download_addons
 end
 
 def full_version
-  json = JSON.parse(open(RELEASES_JSON_URL).read)
+  json = JSON.parse(URI.open(RELEASES_JSON_URL).read)
   json.select { |x| x['go_version'] == ENV['GO_VERSION'] }.sort_by { |a| a['go_build_number'].to_i }.last['go_full_version']
 end
 
