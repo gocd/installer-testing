@@ -6,18 +6,18 @@
 
 ## Run test
 
-Run this command to test latest experimental build on 4 environments - Ubuntu 14.04, Ubuntu 16.04, debian 8 and Centos7
+Run this command to test latest experimental build
 
 ```rake test_installers```
 
-Run this command to test upgrade to latest experimental build from the list of older versions provided Centos7 - 
+Run this command to test upgrade to latest experimental build from the list of older versions provided - 
 
 ```UPGRADE_VERSIONS_LIST='X.x.x-<build_number>, ...' rake upgrade_tests``` 
 
 ## License
 
 ```plain
-Copyright 2019 ThoughtWorks, Inc.
+Copyright 2022 ThoughtWorks, Inc.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
