@@ -276,10 +276,6 @@ end
       sh(%(curl --silent --fail --location --dump-header - -X POST -H "Accept: #{pipeline_schedule_api_version}" -H "Confirm: true" -H "X-GoCD-Confirm: true" #{url}))
     end
 
-    task :trigger_pipeline_first do
-      unpause_pipeline if current_gocd_version < Gem::Version.new('18.8.0')
-    end
-
     task :trigger_pipeline_again do
       trigger_pipeline
     end
@@ -391,7 +387,7 @@ end
     end
 
     task :fresh => [:repo, :install_latest_version, :create_pipeline_by_config, :check_pipeline_pass_with_label_1]
-    task :setup => [:repo, :install_old_version, :create_pipeline_by_config, :trigger_pipeline_first, :check_pipeline_pass_with_label_1]
+    task :setup => [:repo, :install_old_version, :create_pipeline_by_config, :check_pipeline_pass_with_label_1]
     task :upgrade => [:setup, :install_latest_version, :trigger_pipeline_again, :check_pipeline_pass_with_label_2]
 
     task :upgrade_test do
@@ -410,7 +406,6 @@ end
           Rake::Task["#{os}:repo"].reenable
           Rake::Task["#{os}:install_old_version"].reenable
           Rake::Task["#{os}:create_pipeline_by_config"].reenable
-          Rake::Task["#{os}:trigger_pipeline_first"].reenable
           Rake::Task["#{os}:check_pipeline_pass_with_label_1"].reenable
           Rake::Task["#{os}:install_server"].reenable
           Rake::Task["#{os}:trigger_pipeline_again"].reenable
