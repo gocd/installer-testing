@@ -92,19 +92,13 @@ class DebianDistro < Distro
     [
       "bash -lc 'rm -rf /etc/apt/apt.conf.d/docker-clean'",
       'apt-get update',
-      'apt-get install -y apt-transport-https curl'
+      'apt-get install -y apt-transport-https curl gnupg2'
     ]
   end
 
   def install_jdk
-    [ "/bin/bash -lc 'echo deb [check-valid-until=no] http://archive.debian.org/debian jessie-backports main > /etc/apt/sources.list.d/jessie-backports.list'",
-      %(/bin/bash -lc 'echo "Acquire::Check-Valid-Until "false";" >> /etc/apt/apt.conf'),
-      'apt-get update',
-      'apt-get -t jessie-backports install -y openjdk-8-jre',
-      'curl https://download.java.net/openjdk/jdk11/ri/openjdk-11+28_linux-x64_bin.tar.gz -o /home/openjdk-11+28_linux-x64_bin.tar.gz',
-      'tar -xvf /home/openjdk-11+28_linux-x64_bin.tar.gz -C /home/',
-      'unlink /usr/bin/java',
-      'ln -s -f /home/jdk-11/bin/java /usr/bin/java'
+    [
+      'apt-get install -y openjdk-11-jre-headless'
     ]
   end
 
@@ -116,19 +110,7 @@ class DebianDistro < Distro
 end
 
 class UbuntuDistro < DebianDistro
-  def install_jdk
-    [
-      'apt-get install -y software-properties-common python-software-properties',
-      'add-apt-repository ppa:openjdk-r/ppa',
-      'add-apt-repository ppa:git-core/ppa',
-      'apt-get update',
-      'apt-get install -y openjdk-8-jre git',
-      'curl https://download.java.net/openjdk/jdk11/ri/openjdk-11+28_linux-x64_bin.tar.gz -o /home/openjdk-11+28_linux-x64_bin.tar.gz',
-      'tar -xvf /home/openjdk-11+28_linux-x64_bin.tar.gz -C /home/',
-      'unlink /usr/bin/java',
-      'ln -s -f /home/jdk-11/bin/java /usr/bin/java'
-    ]
-  end
+
 end
 
 class CentosDistro < Distro
@@ -147,35 +129,16 @@ class CentosDistro < Distro
   end
 
   def install_jdk
-    ['curl https://download.java.net/openjdk/jdk11/ri/openjdk-11+28_linux-x64_bin.tar.gz -o /home/openjdk-11+28_linux-x64_bin.tar.gz',
-      'tar -xvf /home/openjdk-11+28_linux-x64_bin.tar.gz -C /home/',
-      'ln -s -f /home/jdk-11/bin/java /usr/bin/java'
+    [
+      'yum -y install java-11-openjdk'
     ]
   end
 
   def install_build_tools
-    git  = is_legacy? ? "sclo-git212" : "git"
-    rake = is_legacy? ? "rh-ruby24-rubygem-rake" : "rubygem-rake"
-
     [
       "yum -y install initscripts sysvinit-tools",
-      "yum -y install unzip #{git} #{rake}",
-    ].tap { |cmds| wrap_scl_and_activate(cmds, git, "rh-ruby24") if is_legacy? }
-  end
-
-  private
-
-  def is_legacy?
-    %w(6 7).include?(@version)
-  end
-
-  def wrap_scl_and_activate(cmds, *names)
-    cmds.tap { |cmds|
-      cmds.unshift 'yum -y install centos-release-scl'
-      names.each { |name|
-        cmds << "/bin/bash -lc 'echo source /opt/rh/#{name}/enable > /etc/profile.d/#{name}.sh'"
-      }
-    }
+      "yum -y install unzip git rubygem-rake",
+    ]
   end
 end
 
@@ -219,8 +182,8 @@ end
 
 task :test_installers do |t|
   boxes = [
-      UbuntuDistro.new('ubuntu', '14.04', t.name),
-      UbuntuDistro.new('ubuntu', '16.04', t.name),
+      UbuntuDistro.new('ubuntu', '20.04', t.name),
+      UbuntuDistro.new('ubuntu', '22.04', t.name),
       DebianDistro.new('debian', '11', t.name),
       CentosDistro.new('centos', '7', t.name),
   ]
@@ -259,8 +222,8 @@ end
 
 task :upgrade_tests do |t|
   upgrade_boxes = [
-    UbuntuDistro.new('ubuntu', '14.04', t.name),
-    UbuntuDistro.new('ubuntu', '16.04', t.name),
+    UbuntuDistro.new('ubuntu', '20.04', t.name),
+    UbuntuDistro.new('ubuntu', '22.04', t.name),
     DebianDistro.new('debian', '11', t.name),
     CentosDistro.new('centos', '7', t.name)
   ]
