@@ -56,6 +56,11 @@ pipelines:
             tasks:
             - exec:
                 arguments:
+                  - 30
+                command: sleep
+                run_if: passed
+            - exec:
+                arguments:
                 - upgrade_tests
                 command: rake
                 run_if: passed
