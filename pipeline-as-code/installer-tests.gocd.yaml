@@ -44,11 +44,6 @@ pipelines:
             tasks:
             - exec:
                 arguments:
-                  - 15
-                command: sleep
-                run_if: passed
-            - exec:
-                arguments:
                 - test_installers
                 command: rake
                 run_if: passed
@@ -59,11 +54,6 @@ pipelines:
               UPGRADE_VERSIONS_LIST: 20.5.0-11820
             elastic_profile_id: installers-testing
             tasks:
-            - exec:
-                arguments:
-                  - 15
-                command: sleep
-                run_if: passed
             - exec:
                 arguments:
                 - upgrade_tests
