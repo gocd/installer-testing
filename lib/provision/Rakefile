@@ -48,6 +48,10 @@ class Debian
     sh('curl --silent --fail --location https://download.gocd.org/GOCD-GPG-KEY.asc | apt-key add -')
     sh('apt-get clean && rm -rf /var/lib/apt/lists/* && apt-get update')
   end
+
+  def install(pkg_name, pkg_version)
+    sh("apt-get -o Dpkg::Options::='--force-confdef' -o Dpkg::Options::='--force-confold' install -y #{pkg_name}=#{pkg_version}")
+  end
 end
 
 class Redhat
@@ -56,6 +60,10 @@ class Redhat
   def repo
     sh('curl --silent --fail --location https://download.gocd.org/gocd.repo -o /etc/yum.repos.d/gocd.repo')
     sh("yum clean all && yum makecache --disablerepo='*' --enablerepo='gocd*'")
+  end
+
+  def install(pkg_name, pkg_verion)
+    sh("yum install --assumeyes --enablerepo='gocd*' #{pkg_name}-#{pkg_verion}")
   end
 end
 
