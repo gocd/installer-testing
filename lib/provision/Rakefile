@@ -48,24 +48,6 @@ class Debian
     sh('curl --silent --fail --location https://download.gocd.org/GOCD-GPG-KEY.asc | apt-key add -')
     sh('apt-get clean && rm -rf /var/lib/apt/lists/* && apt-get update')
   end
-
-  def install(pkg_name, pkg_version)
-    sh("apt-get -o Dpkg::Options::='--force-confdef' -o Dpkg::Options::='--force-confold' install -y #{pkg_name}=#{pkg_version}")
-  end
-
-  def uninstall(pkg_name, pkg_verion)
-    sh("apt-get purge -y #{pkg_name}=#{pkg_verion}")
-  end
-
-  def setup_postgres
-    sh('apt-get install -y postgresql-9.3')
-    sh('apt-get install -y postgresql-contrib-9.3')
-    sh('service postgresql status || service postgresql start')
-    sh(%(su - postgres -c bash -c 'createdb -U postgres cruise'))
-    sh(%(su - postgres -c bash -c 'sed -i 's/peer/md5/g' /etc/postgresql/9.3/main/pg_hba.conf'))
-    sh(%(su - postgres -c /bin/bash -c "psql -c \\"ALTER USER postgres WITH PASSWORD 'postgres'\\";"))
-    sh('service postgresql restart')
-  end
 end
 
 class Redhat
@@ -75,25 +57,6 @@ class Redhat
     sh('curl --silent --fail --location https://download.gocd.org/gocd.repo -o /etc/yum.repos.d/gocd.repo')
     sh("yum clean all && yum makecache --disablerepo='*' --enablerepo='gocd*'")
   end
-
-  def install(pkg_name, pkg_verion)
-    sh("yum install --assumeyes --enablerepo='gocd*' #{pkg_name}-#{pkg_verion}")
-  end
-
-  def uninstall(pkg_name, pkg_verion)
-    sh("yum remove --assumeyes #{pkg_name}-#{pkg_verion}")
-  end
-
-  def setup_postgres
-    sh('yum install --assumeyes postgresql-server')
-    sh('yum install --assumeyes postgresql-contrib')
-    sh(%(su - postgres -c bash -c 'initdb -D /var/lib/pgsql/data'))
-    sh(%(su - postgres -c bash -c 'pg_ctl -D /var/lib/pgsql/data -l /var/lib/pgsql/data/logfile start  -w -t 60'))
-    sh(%(su - postgres -c bash -c 'sed -i 's/peer/md5/g' /var/lib/pgsql/data/pg_hba.conf'))
-    sh(%(su - postgres -c /bin/bash -c "psql -c \\"ALTER USER postgres WITH PASSWORD 'postgres'\\";"))
-    sh(%(su - postgres -c bash -c 'createdb -U postgres cruise'))
-    sh(%(su - postgres -c bash -c 'pg_ctl -D /var/lib/pgsql/data -l /var/lib/pgsql/data/logfile restart'))
-  end
 end
 
 {
@@ -101,8 +64,6 @@ end
   'centos' => Redhat
 }.each do |os, klass|
   namespace os do
-    @postgres_setup_done = false
-
     task :repo do
       klass.new.repo
     end
@@ -112,72 +73,39 @@ end
     task :install_server do
       sh('pkill -f go-server') if server_running?
       klass.new.install('go-server', ENV['GO_VERSION'])
-      if ENV['USE_POSTGRES']
-        unless @postgres_setup_done
-          klass.new.setup_postgres
-          @postgres_setup_done = true
-        end
-        setup_postgres_addon ENV['GO_VERSION']
-      end
       if File.exist?('/usr/bin/java')
         sh ('unlink /usr/bin/java')
         sh ('ln -s -f /home/jdk-11/bin/java /usr/bin/java')
       end
       sh(%(echo "wrapper.java.additional.102=-Dgo.server.enable.tls=true"  >> /usr/share/go-server/wrapper-config/wrapper-properties.conf))
-      chmod_R 0o755, '/vagrant/provision/filesystem/start-stop-gocd-server-agent.sh'
-      sh("./vagrant/provision/filesystem/start-stop-gocd-server-agent.sh server start")
+      chmod_R 0o755, '/configure/provision/filesystem/start-stop-gocd-server-agent.sh'
+      sh("./configure/provision/filesystem/start-stop-gocd-server-agent.sh server start")
       server_status
     end
 
     task :install_agent do
       unless agent_any?(agent_api_version)
         klass.new.install('go-agent', ENV['GO_VERSION'])
-        chmod_R 0o755, '/vagrant/provision/filesystem/start-stop-gocd-server-agent.sh'
-        sh("./vagrant/provision/filesystem/start-stop-gocd-server-agent.sh agent start")
+        chmod_R 0o755, '/configure/provision/filesystem/start-stop-gocd-server-agent.sh'
+        sh("./configure/provision/filesystem/start-stop-gocd-server-agent.sh agent start")
       end
       agent_status
     end
 
     task :install_old_version do
       klass.new.install('go-server', ENV['GO_INITIAL_VERSION'])
-      if ENV['USE_POSTGRES']
-        unless @postgres_setup_done
-          klass.new.setup_postgres
-          @postgres_setup_done = true
-        end
-        setup_postgres_addon ENV['GO_INITIAL_VERSION']
-      end
       if File.exist?('/usr/bin/java')
         sh ('unlink /usr/bin/java')
         sh ('ln -s -f /home/jdk-11/bin/java /usr/bin/java')
       end
 
-      chmod_R 0o755, '/vagrant/provision/filesystem/start-stop-gocd-server-agent.sh'
-      sh("./vagrant/provision/filesystem/start-stop-gocd-server-agent.sh server start")
+      chmod_R 0o755, '/configure/provision/filesystem/start-stop-gocd-server-agent.sh'
+      sh("./configure/provision/filesystem/start-stop-gocd-server-agent.sh server start")
       server_status
       klass.new.install('go-agent', ENV['GO_INITIAL_VERSION'])
-      sh("./vagrant/provision/filesystem/start-stop-gocd-server-agent.sh agent start")
+      sh("./configure/provision/filesystem/start-stop-gocd-server-agent.sh agent start")
       agent_status
     end
-
-    def setup_postgres_addon(version)
-      p 'Setting up postgres addon'
-      sh('pkill -f go-server') if server_running?
-      addon = addon_for version
-      if Gem::Version.new(version.split('-')[0]) < Gem::Version.new('19.6.0')
-        sh('echo GO_SERVER_SYSTEM_PROPERTIES=\"\$GO_SERVER_SYSTEM_PROPERTIES -Dgo.database.provider=com.thoughtworks.go.postgresql.PostgresqlDatabase\" >> /etc/default/go-server')
-      else
-        sh(%(echo "wrapper.java.additional.101=-Dgo.database.provider=com.thoughtworks.go.postgresql.PostgresqlDatabase"  >> /usr/share/go-server/wrapper-config/wrapper-properties.conf))
-      end
-
-      sh(%(su - go bash -c 'mkdir -p /var/lib/go-server/addons ; rm -rf /var/lib/go-server/addons/*.jar ; cp /vagrant/addons/#{addon} /var/lib/go-server/addons/'))
-      sh(%(su - go bash -c 'echo "db.host=localhost"  >> /etc/go/postgresqldb.properties'))
-      sh(%(su - go bash -c 'echo "db.port=5432"  >> /etc/go/postgresqldb.properties'))
-      sh(%(su - go bash -c 'echo "db.name=cruise"  >> /etc/go/postgresqldb.properties'))
-      sh(%(su - go bash -c 'echo "db.user=postgres"  >> /etc/go/postgresqldb.properties'))
-      sh(%(su - go bash -c 'echo "db.password=postgres"  >> /etc/go/postgresqldb.properties'))
-    end
-
 
     def server_running?
       begin
@@ -205,19 +133,6 @@ end
 
     def server_status
       wait_to_start
-      pg_connection = 'Using connection configuration jdbc:postgresql://localhost:5432/cruise [User: postgres] [Password Encrypted: false]'
-
-      # check if server startup with postgres only
-      if ENV['USE_POSTGRES']
-        Timeout.timeout(120) do
-          loop do
-            if File.readlines('/var/log/go-server/go-server.log').any? { |l| l[pg_connection] }
-              p 'server up with postgres'
-              break
-            end
-          end
-        end
-      end
     end
 
     def agent_status
@@ -257,7 +172,7 @@ end
     def create_pipeline
       url = 'http://127.0.0.1:8153/go/api/admin/pipelines'
       puts 'create a pipeline'
-      sh(%(curl --silent --fail --location --dump-header - -X POST -H "Accept: #{pipeline_api_version}" -H "Content-Type: application/json" --data "@/vagrant/provision/filesystem/pipeline.json" #{url}))
+      sh(%(curl --silent --fail --location --dump-header - -X POST -H "Accept: #{pipeline_api_version}" -H "Content-Type: application/json" --data "@/configure/provision/filesystem/pipeline.json" #{url}))
     end
 
     task :create_pipeline_by_config do
@@ -379,11 +294,6 @@ end
       sh "curl http://127.0.0.1:8153/go/api/version -H 'Accept: #{GoCDApiVersion::V1}' > temp.txt"
       versions = JSON.parse(File.read('temp.txt'))
       "#{versions['version']}-#{versions['build_number']}"
-    end
-
-    def addon_for(core)
-      versions_map = JSON.parse(File.read('/vagrant/addons/addon_builds.json'))
-      versions_map.select { |v| v['gocd_version'] == core }.last['addons']['postgresql']
     end
 
     task :fresh => [:repo, :install_latest_version, :create_pipeline_by_config, :check_pipeline_pass_with_label_1]

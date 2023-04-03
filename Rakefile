@@ -75,7 +75,7 @@ class Distro
 
   def run_test(test_type = 'fresh', env = {})
     env_args = env.collect { |k, v| "'#{k}=#{v}'" }.join(' ')
-    %(bash -lc "rake --trace --rakefile /vagrant/provision/Rakefile #{distro}:#{test_type} #{env_args}")
+    %(bash -lc "rake --trace --rakefile /configure/provision/Rakefile #{distro}:#{test_type} #{env_args}")
   end
 end
 
@@ -156,7 +156,7 @@ def boot_container(box)
   sh "docker pull #{box.image}"
 
   mounts = {
-    "#{pwd}/lib" => '/vagrant'
+    "#{pwd}/lib" => '/configure'
   }
 
   box.cache_dirs.each do |cache_dir|
@@ -201,25 +201,6 @@ task :test_installers do |t|
   end
 end
 
-task :test_installers_w_postgres do |t|
-  postgres_boxes = [
-      UbuntuDistro.new('ubuntu', '22.04', t.name),
-      CentosDistro.new('centos', '7', t.name),
-  ]
-
-  partition(postgres_boxes).each do |box|
-    boot_container(box)
-    begin
-      env = { GO_VERSION: full_version, USE_POSTGRES: true }
-      sh "docker exec #{box.container_name} #{box.run_test('fresh', env)}"
-    rescue StandardError => e
-      raise "Installer testing failed. Error message #{e.message} #{e.backtrace.join("\n")}"
-    ensure
-      sh "docker stop #{box.container_name}"
-    end
-  end
-end
-
 task :upgrade_tests do |t|
   upgrade_boxes = [
     UbuntuDistro.new('ubuntu', '20.04', t.name),
@@ -243,51 +224,7 @@ task :upgrade_tests do |t|
   end
 end
 
-task :upgrade_tests_w_postgres do |t|
-  download_addons
-  postgres_upgrade_boxes = [
-      UbuntuDistro.new('ubuntu', '22.04', t.name),
-      CentosDistro.new('centos', '7', t.name),
-  ]
-  partition(postgres_upgrade_boxes).each do |box|
-    UPGRADE_VERSIONS_LIST.split(/\s*,\s*/).each do |from_version|
-      boot_container(box)
-      begin
-        env = { GO_VERSION: full_version, UPGRADE_VERSIONS_LIST: from_version, USE_POSTGRES: true }
-        sh "docker exec #{box.container_name} #{box.run_test('upgrade_test', env)}"
-      rescue StandardError => e
-        raise "Installer testing failed. Error message #{e.message} #{e.backtrace.join("\n")}"
-      ensure
-        sh "docker rm -f #{box.container_name}"
-      end
-    end
-  end
-end
-
-task :verify_osx_signer do
-  sh "curl -L -o go-server-#{full_version}-osx.zip --fail  https://download.gocd.org/experimental/binaries/#{full_version}/osx/go-server-#{full_version}-osx.zip"
-  sh "unzip go-server-#{full_version}-osx.zip"
-  sh 'codesign --verify --verbose Go\\ Server.app'
-end
-
-def download_addons
-  json = JSON.parse(URI.open(STABLE_RELEASES_JSON_URL).read)
-  myhash = json.sort_by { |a| a['go_full_version'] }.reverse
-  myhash.each_with_index do |key, index|
-    next unless UPGRADE_VERSIONS_LIST.include? myhash[index]['go_full_version']
-    addon = addon_for(key['go_full_version'])
-    unless File.exist?("addons/#{addon}")
-      sh "curl -L -o lib/addons/#{addon} --fail -H 'Accept: binary/octet-stream' --user '#{ENV['EXTENSIONS_USER']}:#{ENV['EXTENSIONS_PASSWORD']}'  #{ENV['ADDON_DOWNLOAD_URL']}/#{key['go_full_version']}/download?eula_accepted=true"
-    end
-  end
-end
-
 def full_version
   json = JSON.parse(URI.open(RELEASES_JSON_URL).read)
   json.select { |x| x['go_version'] == ENV['GO_VERSION'] }.sort_by { |a| a['go_build_number'].to_i }.last['go_full_version']
-end
-
-def addon_for(core)
-  versions_map = JSON.parse(File.read('./lib/addons/addon_builds.json'))
-  versions_map.select { |v| v['gocd_version'] == core }.last['addons']['postgresql']
 end
