@@ -118,26 +118,29 @@ class CentosDistro < Distro
     'centos'
   end
 
+  def image
+    "quay.io/centos/#{name}:#{version}"
+  end
+
   def cache_dirs
     ['/var/cache/yum']
   end
 
   def prepare_commands
     [
-      'yum makecache'
+      'dnf makecache'
     ]
   end
 
   def install_jdk
     [
-      'yum -y install java-11-openjdk'
+      'dnf -y install java-11-openjdk'
     ]
   end
 
   def install_build_tools
     [
-      "yum -y install initscripts sysvinit-tools",
-      "yum -y install unzip git rubygem-rake",
+      "dnf -y install unzip git rubygem-rake",
     ]
   end
 end
@@ -185,7 +188,7 @@ task :test_installers do |t|
       UbuntuDistro.new('ubuntu', '20.04', t.name),
       UbuntuDistro.new('ubuntu', '22.04', t.name),
       DebianDistro.new('debian', '11', t.name),
-      CentosDistro.new('centos', '7', t.name),
+      CentosDistro.new('centos', 'stream8', t.name),
   ]
 
   partition(boxes).each do |box|
@@ -206,7 +209,7 @@ task :upgrade_tests do |t|
     UbuntuDistro.new('ubuntu', '20.04', t.name),
     UbuntuDistro.new('ubuntu', '22.04', t.name),
     DebianDistro.new('debian', '11', t.name),
-    CentosDistro.new('centos', '7', t.name)
+    CentosDistro.new('centos', 'stream8', t.name)
   ]
 
   partition(upgrade_boxes).each do |box|

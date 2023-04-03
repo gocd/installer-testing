@@ -59,11 +59,11 @@ class Redhat
 
   def repo
     sh('curl --silent --fail --location https://download.gocd.org/gocd.repo -o /etc/yum.repos.d/gocd.repo')
-    sh("yum clean all && yum makecache --disablerepo='*' --enablerepo='gocd*'")
+    sh("dnf clean all && dnf makecache --disablerepo='*' --enablerepo='gocd*'")
   end
 
   def install(pkg_name, pkg_verion)
-    sh("yum install --assumeyes --enablerepo='gocd*' #{pkg_name}-#{pkg_verion}")
+    sh("dnf install --assumeyes --enablerepo='gocd*' #{pkg_name}-#{pkg_verion}")
   end
 end
 
