@@ -134,7 +134,7 @@ class CentosDistro < Distro
 
   def install_jdk
     [
-      'dnf -y install java-11-openjdk'
+      'dnf -y install java-11-openjdk-headless'
     ]
   end
 
