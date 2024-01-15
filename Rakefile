@@ -96,12 +96,6 @@ class DebianDistro < Distro
     ]
   end
 
-  def install_jdk
-    [
-      'apt-get install -y openjdk-17-jre-headless'
-    ]
-  end
-
   def install_build_tools
     [
       'apt-get install -y rake ruby-json unzip git curl'
@@ -129,12 +123,6 @@ class CentosDistro < Distro
   def prepare_commands
     [
       'dnf makecache'
-    ]
-  end
-
-  def install_jdk
-    [
-      'dnf -y install java-17-openjdk-headless'
     ]
   end
 
@@ -171,10 +159,6 @@ def boot_container(box)
   sh %(docker run #{mounts.collect { |k, v| "--volume #{k}:#{v}" }.join(' ')} --rm -d -it --name #{box.container_name} #{box.image} sleep 3600)
 
   box.prepare_commands.each do |each_command|
-    sh "docker exec #{box.container_name} #{each_command}"
-  end
-
-  box.install_jdk.each do |each_command|
     sh "docker exec #{box.container_name} #{each_command}"
   end
 
