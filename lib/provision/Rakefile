@@ -152,10 +152,6 @@ end
       end
     end
 
-    def agent_compatible?
-      false
-    end
-
     def agent_running?(v)
       sh "curl http://127.0.0.1:8153/go/api/agents -H 'Accept: #{v}' > temp.txt"
       agents = JSON.parse(File.read('temp.txt'))['_embedded']['agents']
