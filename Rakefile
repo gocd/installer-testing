@@ -91,14 +91,13 @@ class DebianDistro < Distro
   def prepare_commands
     [
       "bash -lc 'rm -rf /etc/apt/apt.conf.d/docker-clean'",
-      'DEBIAN_FRONTEND=noninteractive apt-get update',
-      'DEBIAN_FRONTEND=noninteractive apt-get install -y apt-transport-https curl gnupg2'
+      "bash -lc 'DEBIAN_FRONTEND=noninteractive apt-get update && apt-get install -y apt-transport-https curl gnupg2'"
     ]
   end
 
   def install_build_tools
     [
-      'DEBIAN_FRONTEND=noninteractive apt-get install -y rake ruby-json unzip git curl'
+      "bash -lc 'DEBIAN_FRONTEND=noninteractive apt-get install -y rake ruby-json unzip git curl'"
     ]
   end
 end

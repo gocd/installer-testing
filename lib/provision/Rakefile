@@ -65,7 +65,7 @@ class Redhat
   end
 
   def install(pkg_name, pkg_verion)
-    sh("dnf install --assumeyes --enablerepo='gocd*' #{pkg_name}-#{pkg_verion}")
+    sh("dnf install -y --enablerepo='gocd*' #{pkg_name}-#{pkg_verion}")
   end
 end
 
