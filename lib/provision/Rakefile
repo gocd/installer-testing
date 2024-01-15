@@ -56,7 +56,7 @@ class Debian
   end
 end
 
-class Redhat
+class CentOS
   include Rake::DSL
 
   def repo
@@ -71,7 +71,7 @@ end
 
 {
   'debian' => Debian,
-  'centos' => Redhat
+  'centos' => CentOS
 }.each do |os, klass|
   namespace os do
     task :repo do
