@@ -41,12 +41,14 @@ class Debian
   include Rake::DSL
 
   def repo
+    sh('install -m 0755 -d /etc/apt/keyrings')
+    sh('curl --silent --fail --location https://download.gocd.org/GOCD-GPG-KEY.asc | gpg --dearmor -o /etc/apt/keyrings/gocd.gpg')
+    sh('chmod a+r /etc/apt/keyrings/gocd.gpg')
     open('/etc/apt/sources.list.d/gocd.list', 'w') do |f|
-      f.puts('deb https://download.gocd.org /')
-      f.puts('deb https://download.gocd.org/experimental /')
+      f.puts('deb [signed-by=/etc/apt/keyrings/gocd.gpg] https://download.gocd.org /')
+      f.puts('deb [signed-by=/etc/apt/keyrings/gocd.gpg] https://download.gocd.org/experimental /')
     end
-    sh('curl --silent --fail --location https://download.gocd.org/GOCD-GPG-KEY.asc | apt-key add -')
-    sh('apt-get clean && rm -rf /var/lib/apt/lists/* && apt-get update')
+    sh('DEBIAN_FRONTEND=noninteractive apt-get update')
   end
 
   def install(pkg_name, pkg_version)
