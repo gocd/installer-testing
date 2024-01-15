@@ -26,7 +26,7 @@ require 'securerandom'
 
 RELEASES_JSON_URL = ENV['RELEASES_JSON_URL'] || 'https://download.go.cd/experimental/releases.json'
 STABLE_RELEASES_JSON_URL = ENV['STABLE_RELEASES_JSON_URL'] || 'https://download.go.cd/releases.json'
-UPGRADE_VERSIONS_LIST = ENV['UPGRADE_VERSIONS_LIST'] || '16.9.0-4001, 16.12.0-4352, 17.1.0-4511'
+UPGRADE_VERSIONS_LIST = ENV['UPGRADE_VERSIONS_LIST'] || '20.5.0-11820'
 
 def partition(things)
   things = (things || []).sort

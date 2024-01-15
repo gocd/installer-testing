@@ -227,47 +227,23 @@ end
     end
 
     def agent_api_version
-      if current_gocd_version >= Gem::Version.new('19.8.0')
-        GoCDApiVersion::V
-      else
-        GoCDApiVersion::V4
-      end
+      GoCDApiVersion::V
     end
 
     def pipeline_api_version
-      if current_gocd_version >= Gem::Version.new('19.8.0')
-        GoCDApiVersion::V
-      elsif current_gocd_version >= Gem::Version.new('19.6.0')
-        GoCDApiVersion::V8
-      elsif current_gocd_version >= Gem::Version.new('19.4.0')
-        GoCDApiVersion::V7
-      elsif current_gocd_version >= Gem::Version.new('18.11.0')
-        GoCDApiVersion::V6
-      end
+      GoCDApiVersion::V
     end
 
     def pipeline_pause_api_version
-      if current_gocd_version >= Gem::Version.new('19.8.0')
-        GoCDApiVersion::V
-      else
-        GoCDApiVersion::V1
-      end
+      GoCDApiVersion::V
     end
 
     def pipeline_schedule_api_version
-      if current_gocd_version >= Gem::Version.new('19.8.0')
-        GoCDApiVersion::V
-      else
-        GoCDApiVersion::V1
-      end
+      GoCDApiVersion::V
     end
 
     def dashboard_api_version
-      if current_gocd_version >= Gem::Version.new('19.8.0')
-        GoCDApiVersion::V
-      else
-        GoCDApiVersion::V2
-      end
+      GoCDApiVersion::V
     end
 
     def check_pipeline_status
