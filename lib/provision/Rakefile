@@ -87,7 +87,7 @@ end
     end
 
     task :install_agent do
-      unless agent_any?(agent_api_version)
+      unless agent_compatible? && agent_any?(agent_api_version) # FIX ME need to upgrade agent
         klass.new.install('go-agent', ENV['GO_VERSION'])
         chmod_R 0o755, '/configure/provision/filesystem/start-stop-gocd-server-agent.sh'
         sh("./configure/provision/filesystem/start-stop-gocd-server-agent.sh agent start")
@@ -142,6 +142,10 @@ end
           sleep 5
         end
       end
+    end
+
+    def agent_compatible?
+      false
     end
 
     def agent_running?(v)
