@@ -97,7 +97,7 @@ class DebianDistro < Distro
 
   def install_build_tools
     [
-      "bash -lc 'DEBIAN_FRONTEND=noninteractive apt-get install -y rake ruby-json unzip git curl'"
+      "bash -lc 'DEBIAN_FRONTEND=noninteractive apt-get install -y rake ruby-json git curl'"
     ]
   end
 end
@@ -127,7 +127,7 @@ class CentosDistro < Distro
 
   def install_build_tools
     [
-      "dnf -y install unzip git rubygem-rake",
+      "dnf -y install git rubygem-rake",
     ]
   end
 end
