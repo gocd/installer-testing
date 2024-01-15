@@ -81,10 +81,6 @@ end
     task :install_server do
       sh('pkill -f go-server') if server_running?
       klass.new.install('go-server', ENV['GO_VERSION'])
-      if File.exist?('/usr/bin/java')
-        sh ('unlink /usr/bin/java')
-        sh ('ln -s -f /home/jdk-11/bin/java /usr/bin/java')
-      end
       chmod_R 0o755, '/configure/provision/filesystem/start-stop-gocd-server-agent.sh'
       sh("./configure/provision/filesystem/start-stop-gocd-server-agent.sh server start")
       server_status
@@ -101,11 +97,6 @@ end
 
     task :install_old_version do
       klass.new.install('go-server', ENV['GO_INITIAL_VERSION'])
-      if File.exist?('/usr/bin/java')
-        sh ('unlink /usr/bin/java')
-        sh ('ln -s -f /home/jdk-11/bin/java /usr/bin/java')
-      end
-
       chmod_R 0o755, '/configure/provision/filesystem/start-stop-gocd-server-agent.sh'
       sh("./configure/provision/filesystem/start-stop-gocd-server-agent.sh server start")
       server_status
