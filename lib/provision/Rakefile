@@ -52,7 +52,7 @@ class Debian
   end
 
   def install(pkg_name, pkg_version)
-    sh("apt-get -o Dpkg::Options::='--force-confdef' -o Dpkg::Options::='--force-confold' install -y #{pkg_name}=#{pkg_version}")
+    sh("DEBIAN_FRONTEND=noninteractive apt-get install -y #{pkg_name}=#{pkg_version}")
   end
 end
 
