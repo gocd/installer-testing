@@ -98,7 +98,7 @@ class DebianDistro < Distro
 
   def install_jdk
     [
-      'apt-get install -y openjdk-11-jre-headless'
+      'apt-get install -y openjdk-17-jre-headless'
     ]
   end
 
@@ -134,7 +134,7 @@ class CentosDistro < Distro
 
   def install_jdk
     [
-      'dnf -y install java-11-openjdk-headless'
+      'dnf -y install java-17-openjdk-headless'
     ]
   end
 
