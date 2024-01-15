@@ -97,7 +97,7 @@ class DebianDistro < Distro
 
   def install_build_tools
     [
-      "bash -lc 'DEBIAN_FRONTEND=noninteractive apt-get install -y rake ruby-json git curl'"
+      "bash -lc 'DEBIAN_FRONTEND=noninteractive apt-get install -y rake git curl'"
     ]
   end
 end
