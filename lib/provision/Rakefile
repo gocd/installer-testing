@@ -89,15 +89,17 @@ end
     end
 
     task :install_agent do
-      unless agent_compatible? && agent_any?(agent_api_version) # FIX ME need to upgrade agent
-        if agent_any?(agent_api_version)
-          sh("cat /var/lib/go-agent/run/go-agent.pid | xargs kill -9")
-          sh("./configure/provision/filesystem/start-stop-gocd-server-agent.sh agent stop")
-        end
-        klass.new.install('go-agent', ENV['GO_VERSION'])
-        chmod_R 0o755, '/configure/provision/filesystem/start-stop-gocd-server-agent.sh'
-        sh("./configure/provision/filesystem/start-stop-gocd-server-agent.sh agent start")
+      # If there were any previous agents registered with the server, stop them before upgrade.
+      # For some reason the agent/wrapper gets stuck stopping sometimes, and never times out. Noticed with wrapper
+      # version 3.5.41 and may be related to the wrapper, or a particular way this script works within Docker.
+      # For now, force kill the prior agent wrapper, and then rely on the normal agent upgrade dev/rpm to ensure
+      # things are cleaned up. May be zombie Java processes left behind, but that's better than a stuck container.
+      if agent_any?(agent_api_version)
+        sh("cat /var/lib/go-agent/run/go-agent.pid | xargs kill -9")
       end
+      klass.new.install('go-agent', ENV['GO_VERSION'])
+      chmod_R 0o755, '/configure/provision/filesystem/start-stop-gocd-server-agent.sh'
+      sh("./configure/provision/filesystem/start-stop-gocd-server-agent.sh agent start")
       agent_status
     end
 
