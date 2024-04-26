@@ -93,10 +93,6 @@ class DebianLikeDistro < Distro
     'debian'
   end
 
-  def cache_dirs
-    ['/var/cache/apt/archives', '/var/lib/apt/lists']
-  end
-
   def prepare_commands
     [
       "bash -lc 'rm -rf /etc/apt/apt.conf.d/docker-clean'",
@@ -122,10 +118,6 @@ class RedHatLikeDistro < Distro
 
   def container_command
     "" # We'll use systemd/init system on RHEL
-  end
-
-  def cache_dirs
-    ['/var/cache/dnf']
   end
 
   def prepare_commands
@@ -157,12 +149,6 @@ def boot_container(box)
   mounts = {
     "#{pwd}/lib" => '/configure'
   }
-
-  box.cache_dirs.each do |cache_dir|
-    host_dir = File.expand_path("~/.gocd-installer-testing/cache/#{box.box_name}/#{cache_dir}")
-    mkdir_p host_dir
-    mounts[host_dir] = cache_dir
-  end
 
   sh %(docker run #{mounts.collect { |k, v| "--volume #{k}:#{v}" }.join(' ')} --rm -d -it #{box.container_extra_run_args} --name #{box.container_name} #{box.image} #{box.container_command})
 
