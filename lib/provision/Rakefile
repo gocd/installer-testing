@@ -65,7 +65,7 @@ class RedHatLike
 
     # FIXME Temporarily allow SHA1 signing on RHEL-ish 9. Needs to be moved to SHA256 when we can change our signing key
     # See https://github.com/gocd/gocd/issues/10722
-    sh("[ 9 -eq $(cat /etc/os-release | grep VERSION_ID | cut -d '\"' -f2 | cut -d '.' -f1) ] && update-crypto-policies --set DEFAULT:SHA1")
+    sh("bash -c '(cat /etc/os-release | grep -E VERSION_ID.*9\. >/dev/null) && update-crypto-policies --set DEFAULT:SHA1 || true'")
   end
 
   def install(pkg_name, pkg_verion)
