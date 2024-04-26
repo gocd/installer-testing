@@ -62,6 +62,10 @@ class Distro
     "#{image_repo || name}:#{version}"
   end
 
+  def command
+    "sleep 3600"
+  end
+
   def box_name
     "#{name}-#{version}-#{task_name}"
   end
@@ -108,6 +112,10 @@ class RedHatLikeDistro < Distro
     'rhel'
   end
 
+  def command
+    "" # We'll use systemd/init system on RHEL
+  end
+
   def cache_dirs
     ['/var/cache/dnf']
   end
@@ -148,7 +156,7 @@ def boot_container(box)
     mounts[host_dir] = cache_dir
   end
 
-  sh %(docker run #{mounts.collect { |k, v| "--volume #{k}:#{v}" }.join(' ')} --rm -d -it --name #{box.container_name} #{box.image} sleep 3600)
+  sh %(docker run #{mounts.collect { |k, v| "--volume #{k}:#{v}" }.join(' ')} --rm -d -it --name #{box.container_name} #{box.image} #{box.command})
 
   box.prepare_commands.each do |each_command|
     sh "docker exec #{box.container_name} #{each_command}"
