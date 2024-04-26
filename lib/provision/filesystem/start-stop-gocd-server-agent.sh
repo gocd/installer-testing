@@ -17,7 +17,8 @@ if [ "$1" == "agent" ]; then
         echo " Using upstart to $2 agent "
         $2 go-agent
     else
-        echo " Service file for agent not found. Nothing to $2."
+        echo " Trying to $2 agent without direct service usage."
+        /usr/share/go-agent/bin/go-agent $2
     fi
 
 elif [ "$1" == "server" ]; then  
@@ -32,7 +33,8 @@ elif [ "$1" == "server" ]; then
         echo " Using upstart to $2 server "
         $2 go-server
     else
-        echo " Service file for server not found. Nothing to $2."
-    fi
+        echo " Trying to $2 server without direct service usage."
+        /usr/share/go-server/bin/go-server $2
+      fi
 fi
 
