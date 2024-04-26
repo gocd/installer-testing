@@ -166,8 +166,8 @@ task :test_installers do |t|
     DebianLikeDistro.new('ubuntu', '24.04', t.name),
     DebianLikeDistro.new('debian', '11', t.name),
     DebianLikeDistro.new('debian', '12', t.name),
-    RedHatLikeDistro.new('almalinux', '8-init', t.name, 'almalinux/8-init'),
-    RedHatLikeDistro.new('almalinux', '9-init', t.name, 'almalinux/9-init'),
+    RedHatLikeDistro.new('almalinux', '8', t.name, 'almalinux/8-init'),
+    RedHatLikeDistro.new('almalinux', '9', t.name, 'almalinux/9-init'),
   ]
 
   partition(boxes).each do |box|
@@ -190,8 +190,8 @@ task :upgrade_tests do |t|
     DebianLikeDistro.new('ubuntu', '24.04', t.name),
     DebianLikeDistro.new('debian', '11', t.name),
     DebianLikeDistro.new('debian', '12', t.name),
-    RedHatLikeDistro.new('almalinux', '8-init', t.name, 'almalinux/8-init'),
-    RedHatLikeDistro.new('almalinux', '9-init', t.name, 'almalinux/9-init'),
+    RedHatLikeDistro.new('almalinux', '8', t.name, 'almalinux/8-init'),
+    RedHatLikeDistro.new('almalinux', '9', t.name, 'almalinux/9-init'),
   ]
 
   partition(upgrade_boxes).each do |box|
