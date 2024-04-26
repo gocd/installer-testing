@@ -124,7 +124,8 @@ class RedHatLikeDistro < Distro
     [
       "bash -c 'echo fastestmirror=1 >> /etc/dnf/dnf.conf'",
       "bash -c 'echo install_weak_deps=False >> /etc/dnf/dnf.conf'",
-      "dnf makecache",
+      "systemctl stop dnf-makecache.timer",
+      "systemctl stop dnf-makecache.service",
     ]
   end
 
