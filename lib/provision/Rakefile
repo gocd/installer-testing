@@ -61,7 +61,7 @@ class RedHatLike
 
   def repo
     sh('curl --silent --fail --location https://download.gocd.org/gocd.repo -o /etc/yum.repos.d/gocd.repo')
-    sh("microdnf clean all && microdnf makecache --disablerepo='*' --enablerepo='gocd*'")
+    sh("dnf clean all && dnf makecache --disablerepo='*' --enablerepo='gocd*'")
 
     # FIXME Temporarily allow SHA1 signing on RHEL-ish 9. Needs to be moved to SHA256 when we can change our signing key
     # See https://github.com/gocd/gocd/issues/10722
@@ -69,7 +69,7 @@ class RedHatLike
   end
 
   def install(pkg_name, pkg_verion)
-    sh("microdnf install -y --enablerepo='gocd*' #{pkg_name}-#{pkg_verion}")
+    sh("dnf install -y --enablerepo='gocd*' #{pkg_name}-#{pkg_verion}")
   end
 end
 

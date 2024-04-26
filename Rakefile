@@ -48,17 +48,18 @@ def partition(things)
 end
 
 class Distro
-  attr_reader :name, :version, :task_name
+  attr_reader :name, :version, :task_name, :image_repo
 
-  def initialize(name, version, task_name)
+  def initialize(name, version, task_name, image_repo = name)
     @name = name
     @version = version
     @task_name = task_name
     @random_string = SecureRandom.hex(3)
+    @image_repo = image_repo
   end
 
   def image
-    "#{name}:#{version}"
+    "#{image_repo || name}:#{version}"
   end
 
   def box_name
@@ -108,18 +109,18 @@ class RedHatLikeDistro < Distro
   end
 
   def cache_dirs
-    ['/var/cache/yum']
+    ['/var/cache/dnf']
   end
 
   def prepare_commands
     [
-      'microdnf makecache'
+      'dnf makecache'
     ]
   end
 
   def install_build_tools
     [
-      "microdnf -y install git rubygem-rake crypto-policies-scripts",
+      "dnf -y install git rubygem-rake crypto-policies-scripts",
     ]
   end
 end
@@ -165,8 +166,8 @@ task :test_installers do |t|
     DebianLikeDistro.new('ubuntu', '24.04', t.name),
     DebianLikeDistro.new('debian', '11', t.name),
     DebianLikeDistro.new('debian', '12', t.name),
-    RedHatLikeDistro.new('rockylinux', '8-minimal', t.name),
-    RedHatLikeDistro.new('rockylinux', '9-minimal', t.name),
+    RedHatLikeDistro.new('almalinux', '8-init', t.name, 'almalinux/8-init'),
+    RedHatLikeDistro.new('almalinux', '9-init', t.name, 'almalinux/9-init'),
   ]
 
   partition(boxes).each do |box|
@@ -189,8 +190,8 @@ task :upgrade_tests do |t|
     DebianLikeDistro.new('ubuntu', '24.04', t.name),
     DebianLikeDistro.new('debian', '11', t.name),
     DebianLikeDistro.new('debian', '12', t.name),
-    RedHatLikeDistro.new('rockylinux', '8-minimal', t.name),
-    RedHatLikeDistro.new('rockylinux', '9-minimal', t.name),
+    RedHatLikeDistro.new('almalinux', '8-init', t.name, 'almalinux/8-init'),
+    RedHatLikeDistro.new('almalinux', '9-init', t.name, 'almalinux/9-init'),
   ]
 
   partition(upgrade_boxes).each do |box|
