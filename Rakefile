@@ -170,7 +170,9 @@ task :test_installers do |t|
   boxes = [
       UbuntuDistro.new('ubuntu', '20.04', t.name),
       UbuntuDistro.new('ubuntu', '22.04', t.name),
+      UbuntuDistro.new('ubuntu', '24.04', t.name),
       DebianDistro.new('debian', '11', t.name),
+      DebianDistro.new('debian', '12', t.name),
       CentosDistro.new('centos', 'stream8', t.name),
   ]
 
@@ -191,8 +193,10 @@ task :upgrade_tests do |t|
   upgrade_boxes = [
     UbuntuDistro.new('ubuntu', '20.04', t.name),
     UbuntuDistro.new('ubuntu', '22.04', t.name),
+    UbuntuDistro.new('ubuntu', '24.04', t.name),
     DebianDistro.new('debian', '11', t.name),
-    CentosDistro.new('centos', 'stream8', t.name)
+    DebianDistro.new('debian', '12', t.name),
+    CentosDistro.new('centos', 'stream8', t.name),
   ]
 
   partition(upgrade_boxes).each do |box|
