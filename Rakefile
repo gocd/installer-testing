@@ -62,16 +62,20 @@ class Distro
     "#{image_repo || name}:#{version}"
   end
 
-  def command
-    "sleep 3600"
-  end
-
   def box_name
     "#{name}-#{version}-#{task_name}"
   end
 
   def container_name
     "#{name}-#{version}-#{task_name}-#{@random_string}"
+  end
+
+  def container_extra_run_args
+    ""
+  end
+
+  def container_command
+    "sleep 3600"
   end
 
   def <=>(other)
@@ -112,7 +116,11 @@ class RedHatLikeDistro < Distro
     'rhel'
   end
 
-  def command
+  def container_extra_run_args
+    "--privileged"
+  end
+
+  def container_command
     "" # We'll use systemd/init system on RHEL
   end
 
@@ -156,7 +164,7 @@ def boot_container(box)
     mounts[host_dir] = cache_dir
   end
 
-  sh %(docker run #{mounts.collect { |k, v| "--volume #{k}:#{v}" }.join(' ')} --rm -d -it --name #{box.container_name} #{box.image} #{box.command})
+  sh %(docker run #{mounts.collect { |k, v| "--volume #{k}:#{v}" }.join(' ')} --rm -d -it #{box.container_extra_run_args} --name #{box.container_name} #{box.image} #{box.container_command})
 
   box.prepare_commands.each do |each_command|
     sh "docker exec #{box.container_name} #{each_command}"
