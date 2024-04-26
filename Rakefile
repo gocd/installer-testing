@@ -79,7 +79,7 @@ class Distro
   end
 end
 
-class DebianDistro < Distro
+class DebianLikeDistro < Distro
   def distro
     'debian'
   end
@@ -102,17 +102,9 @@ class DebianDistro < Distro
   end
 end
 
-class UbuntuDistro < DebianDistro
-
-end
-
-class CentosDistro < Distro
+class RedHatLikeDistro < Distro
   def distro
-    'centos'
-  end
-
-  def image
-    "quay.io/centos/#{name}:#{version}"
+    'rhel'
   end
 
   def cache_dirs
@@ -121,13 +113,13 @@ class CentosDistro < Distro
 
   def prepare_commands
     [
-      'dnf makecache'
+      'microdnf makecache'
     ]
   end
 
   def install_build_tools
     [
-      "dnf -y install git rubygem-rake",
+      "microdnf -y install git rubygem-rake crypto-policies-scripts",
     ]
   end
 end
@@ -168,12 +160,13 @@ end
 
 task :test_installers do |t|
   boxes = [
-      UbuntuDistro.new('ubuntu', '20.04', t.name),
-      UbuntuDistro.new('ubuntu', '22.04', t.name),
-      UbuntuDistro.new('ubuntu', '24.04', t.name),
-      DebianDistro.new('debian', '11', t.name),
-      DebianDistro.new('debian', '12', t.name),
-      CentosDistro.new('centos', 'stream8', t.name),
+    DebianLikeDistro.new('ubuntu', '20.04', t.name),
+    DebianLikeDistro.new('ubuntu', '22.04', t.name),
+    DebianLikeDistro.new('ubuntu', '24.04', t.name),
+    DebianLikeDistro.new('debian', '11', t.name),
+    DebianLikeDistro.new('debian', '12', t.name),
+    RedHatLikeDistro.new('rockylinux', '8-minimal', t.name),
+    RedHatLikeDistro.new('rockylinux', '9-minimal', t.name),
   ]
 
   partition(boxes).each do |box|
@@ -191,12 +184,13 @@ end
 
 task :upgrade_tests do |t|
   upgrade_boxes = [
-    UbuntuDistro.new('ubuntu', '20.04', t.name),
-    UbuntuDistro.new('ubuntu', '22.04', t.name),
-    UbuntuDistro.new('ubuntu', '24.04', t.name),
-    DebianDistro.new('debian', '11', t.name),
-    DebianDistro.new('debian', '12', t.name),
-    CentosDistro.new('centos', 'stream8', t.name),
+    DebianLikeDistro.new('ubuntu', '20.04', t.name),
+    DebianLikeDistro.new('ubuntu', '22.04', t.name),
+    DebianLikeDistro.new('ubuntu', '24.04', t.name),
+    DebianLikeDistro.new('debian', '11', t.name),
+    DebianLikeDistro.new('debian', '12', t.name),
+    RedHatLikeDistro.new('rockylinux', '8-minimal', t.name),
+    RedHatLikeDistro.new('rockylinux', '9-minimal', t.name),
   ]
 
   partition(upgrade_boxes).each do |box|

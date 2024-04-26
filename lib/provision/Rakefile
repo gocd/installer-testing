@@ -37,7 +37,7 @@ class GoCDApiVersion
   V8 = 'application/vnd.go.cd.v8+json'.freeze
 end
 
-class Debian
+class DebianLike
   include Rake::DSL
 
   def repo
@@ -56,22 +56,26 @@ class Debian
   end
 end
 
-class CentOS
+class RedHatLike
   include Rake::DSL
 
   def repo
     sh('curl --silent --fail --location https://download.gocd.org/gocd.repo -o /etc/yum.repos.d/gocd.repo')
-    sh("dnf clean all && dnf makecache --disablerepo='*' --enablerepo='gocd*'")
+    sh("microdnf clean all && microdnf makecache --disablerepo='*' --enablerepo='gocd*'")
+
+    # FIXME Temporarily allow SHA1 signing. Needs to be moved to SHA256 when we can change our signing key
+    # See https://github.com/gocd/gocd/issues/10722
+    sh("update-crypto-policies --set DEFAULT:SHA1")
   end
 
   def install(pkg_name, pkg_verion)
-    sh("dnf install -y --enablerepo='gocd*' #{pkg_name}-#{pkg_verion}")
+    sh("microdnf install -y --enablerepo='gocd*' #{pkg_name}-#{pkg_verion}")
   end
 end
 
 {
-  'debian' => Debian,
-  'centos' => CentOS
+  'debian' => DebianLike,
+  'rhel' => RedHatLike,
 }.each do |os, klass|
   namespace os do
     task :repo do
