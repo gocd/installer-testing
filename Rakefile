@@ -122,13 +122,15 @@ class RedHatLikeDistro < Distro
 
   def prepare_commands
     [
+      "bash -c 'echo fastestmirror=1 >> /etc/dnf/dnf.conf'",
+      "bash -c 'echo install_weak_deps=False >> /etc/dnf/dnf.conf'",
       'dnf makecache'
     ]
   end
 
   def install_build_tools
     [
-      "dnf -y install git rubygem-rake crypto-policies-scripts",
+      'dnf -y install git rubygem-rake',
     ]
   end
 end
