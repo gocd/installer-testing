@@ -130,7 +130,7 @@ class RedHatLikeDistro < Distro
 
   def install_build_tools
     [
-      'dnf -y install git rubygem-rake',
+      'dnf -y install git rubygem-rake rubygem-json',
     ]
   end
 end
