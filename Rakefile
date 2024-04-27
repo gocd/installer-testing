@@ -122,11 +122,10 @@ class RedHatLikeDistro < Distro
 
   def prepare_commands
     [
-      "systemctl stop dnf-makecache.timer",
-      "systemctl stop dnf-makecache.service",
-      "bash -c 'echo metadata_timer_sync=0 >> /etc/dnf/dnf.conf'",
       "bash -c 'echo fastestmirror=1 >> /etc/dnf/dnf.conf'",
       "bash -c 'echo install_weak_deps=False >> /etc/dnf/dnf.conf'",
+      "bash -c 'echo metadata_timer_sync=0 >> /etc/dnf/dnf.conf'",
+      "bash -c 'dnf makecache || dnf makecache'",
     ]
   end
 
