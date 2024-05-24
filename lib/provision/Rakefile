@@ -68,7 +68,7 @@ class RedHatLike
   end
 
   def install(pkg_name, pkg_verion)
-    sh("dnf install -y --enablerepo='gocd*' #{pkg_name}-#{pkg_verion}")
+    sh("dnf install -y --enablerepo='gocd*' --setopt=install_weak_deps=true #{pkg_name}-#{pkg_verion}")
   end
 end
 
