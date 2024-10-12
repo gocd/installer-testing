@@ -39,7 +39,7 @@ pipelines:
         jobs:
           fresh-install:
             timeout: 0
-            run_instances: '7'
+            run_instances: '8'
             elastic_profile_id: installers-testing
             tasks:
             - exec:
@@ -49,7 +49,7 @@ pipelines:
                 run_if: passed
           upgrade:
             timeout: 0
-            run_instances: '7'
+            run_instances: '8'
             environment_variables:
               UPGRADE_VERSIONS_LIST: 20.5.0-11820
             elastic_profile_id: installers-testing

@@ -171,6 +171,7 @@ task :test_installers do |t|
     DebianLikeDistro.new('ubuntu', '24.04', t.name),
     DebianLikeDistro.new('debian', '11', t.name),
     DebianLikeDistro.new('debian', '12', t.name),
+    DebianLikeDistro.new('debian', 'trixie', t.name),
     RedHatLikeDistro.new('almalinux', '8', t.name, 'almalinux/8-init'),
     RedHatLikeDistro.new('almalinux', '9', t.name, 'almalinux/9-init'),
   ]
@@ -195,6 +196,7 @@ task :upgrade_tests do |t|
     DebianLikeDistro.new('ubuntu', '24.04', t.name),
     DebianLikeDistro.new('debian', '11', t.name),
     DebianLikeDistro.new('debian', '12', t.name),
+    DebianLikeDistro.new('debian', 'trixie', t.name),
     RedHatLikeDistro.new('almalinux', '8', t.name, 'almalinux/8-init'),
     RedHatLikeDistro.new('almalinux', '9', t.name, 'almalinux/9-init'),
   ]
