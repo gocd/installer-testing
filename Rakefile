@@ -174,6 +174,7 @@ task :test_installers do |t|
     DebianLikeDistro.new('debian', 'trixie', t.name),
     RedHatLikeDistro.new('almalinux', '8', t.name, 'almalinux/8-init'),
     RedHatLikeDistro.new('almalinux', '9', t.name, 'almalinux/9-init'),
+    RedHatLikeDistro.new('almalinux', '10-kitten', t.name, 'almalinux/10-kitten-init'),
   ]
 
   partition(boxes).each do |box|
@@ -199,6 +200,7 @@ task :upgrade_tests do |t|
     DebianLikeDistro.new('debian', 'trixie', t.name),
     RedHatLikeDistro.new('almalinux', '8', t.name, 'almalinux/8-init'),
     RedHatLikeDistro.new('almalinux', '9', t.name, 'almalinux/9-init'),
+    RedHatLikeDistro.new('almalinux', '10-kitten', t.name, 'almalinux/10-kitten-init'),
   ]
 
   partition(upgrade_boxes).each do |box|
