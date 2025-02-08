@@ -166,7 +166,6 @@ end
 
 task :test_installers do |t|
   boxes = [
-    DebianLikeDistro.new('ubuntu', '20.04', t.name),
     DebianLikeDistro.new('ubuntu', '22.04', t.name),
     DebianLikeDistro.new('ubuntu', '24.04', t.name),
     DebianLikeDistro.new('debian', '11', t.name),
@@ -192,7 +191,6 @@ end
 
 task :upgrade_tests do |t|
   upgrade_boxes = [
-    DebianLikeDistro.new('ubuntu', '20.04', t.name),
     DebianLikeDistro.new('ubuntu', '22.04', t.name),
     DebianLikeDistro.new('ubuntu', '24.04', t.name),
     DebianLikeDistro.new('debian', '11', t.name),
