@@ -62,9 +62,10 @@ class RedHatLike
   def repo
     sh('curl --silent --fail --location https://download.gocd.org/gocd.repo -o /etc/yum.repos.d/gocd.repo')
 
-    # FIXME Temporarily allow SHA1 signing on RHEL-ish 9. Needs to be moved to SHA256 when we can change our signing key
+    # FIXME Temporarily allow SHA1 hashes within signatures on RHEL 9+. Needs to be moved to SHA256 when we can change our signing key
+    # or may be an issue with signatures on older RPMs from before a certain point.
     # See https://github.com/gocd/gocd/issues/10722
-    sh("bash -c '(cat /etc/os-release | grep -E VERSION_ID.*\\(9\\|10\\)\\. >/dev/null) && (echo \"hash = +SHA1\" >/etc/crypto-policies/policies/modules/SHA1-HASH.pmod) && update-crypto-policies --set DEFAULT:SHA1-HASH || true'")
+    sh("bash -c '(echo \"hash = +SHA1\" >/etc/crypto-policies/policies/modules/SHA1-HASH.pmod) && update-crypto-policies --set DEFAULT:SHA1-HASH'")
   end
 
   def install(pkg_name, pkg_verion)
