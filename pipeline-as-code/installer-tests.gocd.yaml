@@ -43,10 +43,11 @@ pipelines:
             elastic_profile_id: installers-testing
             tasks:
             - exec:
-                arguments:
-                - test_installers
+                command: docker
+                arguments: [ login, -u, $DOCKERHUB_MIRROR_USERNAME, -p, $DOCKERHUB_MIRROR_PASSWORD, docker.gocd.io ]
+            - exec:
                 command: rake
-                run_if: passed
+                arguments: [ test_installers ]
           upgrade:
             timeout: 0
             run_instances: '8'
@@ -55,7 +56,8 @@ pipelines:
             elastic_profile_id: installers-testing
             tasks:
             - exec:
-                arguments:
-                - upgrade_tests
+                command: docker
+                arguments: [ login, -u, $DOCKERHUB_MIRROR_USERNAME, -p, $DOCKERHUB_MIRROR_PASSWORD, docker.gocd.io ]
+            - exec:
                 command: rake
-                run_if: passed
+                arguments: [ upgrade_tests ]
