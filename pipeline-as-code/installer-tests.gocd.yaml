@@ -44,7 +44,7 @@ pipelines:
             tasks:
             - exec:
                 command: docker
-                arguments: info
+                arguments: [ info ]
             - exec:
                 command: bash
                 arguments: [ -c, 'docker login -u "${DOCKERHUB_MIRROR_USERNAME}" -p "${DOCKERHUB_MIRROR_PASSWORD}" docker.gocd.io' ]
