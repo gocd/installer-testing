@@ -43,9 +43,6 @@ pipelines:
             elastic_profile_id: installers-testing
             tasks:
             - exec:
-                command: docker
-                arguments: [ info ]
-            - exec:
                 command: bash
                 # See https://github.com/moby/moby/issues/30880#issuecomment-798807332 for why normal docker login to gocd.docker.io as registry mirror doesn't work
                 # Docker uses the wrong credentials when trying to use a registry mirror, so we set the docker.gocd.io creds for Docker Hub
