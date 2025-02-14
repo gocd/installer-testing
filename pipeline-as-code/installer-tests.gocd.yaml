@@ -46,7 +46,7 @@ pipelines:
                 command: bash
                 # See https://github.com/moby/moby/issues/30880#issuecomment-798807332 for why normal docker login to docker.gocd.io as registry mirror doesn't work
                 # Docker uses the wrong credentials when trying to use a registry mirror, so we set the docker.gocd.io creds for Docker Hub
-                arguments: [ -c, 'mkdir -p ~/.docker && echo "{ ''auths'': { ''https://index.docker.io/v1'': { ''auth'': \"$(echo -n "${DOCKERHUB_MIRROR_USERNAME}:${DOCKERHUB_MIRROR_PASSWORD}" | base64)\" } } }" > ~/.docker/config.json' ]
+                arguments: [ -c, 'mkdir -p ~/.docker && echo "{ \"auths\": { \"https://index.docker.io/v1\": { \"auth\": \"$(echo -n "${DOCKERHUB_MIRROR_USERNAME}:${DOCKERHUB_MIRROR_PASSWORD}" | base64)\" } } }" > ~/.docker/config.json' ]
             - exec:
                 command: cat
                 arguments: [ /home/go/.docker/config.json ]
@@ -64,7 +64,7 @@ pipelines:
                 command: bash
                 # See https://github.com/moby/moby/issues/30880#issuecomment-798807332 for why normal docker login to docker.gocd.io as registry mirror doesn't work
                 # Docker uses the wrong credentials when trying to use a registry mirror, so we set the docker.gocd.io creds for Docker Hub
-                arguments: [ -c, 'mkdir -p ~/.docker && echo "{ ''auths'': { ''https://index.docker.io/v1'': { ''auth'': \"$(echo -n "${DOCKERHUB_MIRROR_USERNAME}:${DOCKERHUB_MIRROR_PASSWORD}" | base64)\" } } }" > ~/.docker/config.json' ]
+                arguments: [ -c, 'mkdir -p ~/.docker && echo "{ \"auths\": { \"https://index.docker.io/v1\": { \"auth\": \"$(echo -n "${DOCKERHUB_MIRROR_USERNAME}:${DOCKERHUB_MIRROR_PASSWORD}" | base64)\" } } }" > ~/.docker/config.json' ]
             - exec:
                 command: rake
                 arguments: [ upgrade_tests ]
