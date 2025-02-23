@@ -24,8 +24,8 @@ require 'open-uri'
 require 'logger'
 require 'securerandom'
 
-RELEASES_JSON_URL = ENV['RELEASES_JSON_URL'] || 'https://download.go.cd/experimental/releases.json'
-STABLE_RELEASES_JSON_URL = ENV['STABLE_RELEASES_JSON_URL'] || 'https://download.go.cd/releases.json'
+RELEASES_JSON_URL = ENV['RELEASES_JSON_URL'] || 'https://download.gocd.org/experimental/releases.json'
+STABLE_RELEASES_JSON_URL = ENV['STABLE_RELEASES_JSON_URL'] || 'https://download.gocd.org/releases.json'
 UPGRADE_VERSIONS_LIST = ENV['UPGRADE_VERSIONS_LIST'] || '20.5.0-11820'
 
 def partition(things)
