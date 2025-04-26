@@ -55,7 +55,7 @@ pipelines:
             run_instances: '8'
             environment_variables:
               UPGRADE_VERSIONS_LIST: 20.5.0-11820
-            elastic_profile_id: installers-testing
+            elastic_profile_id: installers-testing-x64
             tasks:
             - exec:
                 command: bash
