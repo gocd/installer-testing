@@ -40,7 +40,7 @@ pipelines:
           fresh-install:
             timeout: 0
             run_instances: '8'
-            elastic_profile_id: installers-testing
+            elastic_profile_id: installers-testing-arm64
             tasks:
             - exec:
                 command: bash
