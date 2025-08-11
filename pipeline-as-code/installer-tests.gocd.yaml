@@ -39,7 +39,7 @@ pipelines:
         jobs:
           fresh-install:
             timeout: 0
-            run_instances: '8'
+            run_instances: '7'
             elastic_profile_id: installers-testing-arm64
             tasks:
             - exec:
@@ -52,7 +52,7 @@ pipelines:
                 arguments: [ test_installers ]
           upgrade:
             timeout: 0
-            run_instances: '8'
+            run_instances: '7'
             environment_variables:
               UPGRADE_VERSIONS_LIST: 20.5.0-11820
             elastic_profile_id: installers-testing-x64
