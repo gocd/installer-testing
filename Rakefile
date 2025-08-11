@@ -168,9 +168,8 @@ task :test_installers do |t|
   boxes = [
     DebianLikeDistro.new('ubuntu', '22.04', t.name),
     DebianLikeDistro.new('ubuntu', '24.04', t.name),
-    DebianLikeDistro.new('debian', '11-slim', t.name),
     DebianLikeDistro.new('debian', '12-slim', t.name),
-    DebianLikeDistro.new('debian', 'trixie-slim', t.name),
+    DebianLikeDistro.new('debian', '13-slim', t.name),
     RedHatLikeDistro.new('almalinux', '8', t.name, 'almalinux/8-init'),
     RedHatLikeDistro.new('almalinux', '9', t.name, 'almalinux/9-init'),
     RedHatLikeDistro.new('almalinux', '10', t.name, 'almalinux/10-init'),
