@@ -143,7 +143,7 @@ def boot_container(box)
     puts "box #{box.container_name} does not exist, ignoring!"
   end
 
-  sh "docker rm #{box.container_name}" do |_ok, _res|
+  sh "docker rm --force --volumes #{box.container_name}" do |_ok, _res|
     puts "box #{box.container_name} does not exist, ignoring!"
   end
 
@@ -208,7 +208,7 @@ task :upgrade_tests do |t|
       rescue StandardError => e
         raise "Installer testing failed. Error message #{e.message} #{e.backtrace.join("\n")}"
       ensure
-        sh "docker rm -f #{box.container_name}"
+        sh "docker rm --force --volumes #{box.container_name}"
       end
     end
   end
