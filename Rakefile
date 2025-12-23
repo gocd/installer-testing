@@ -131,7 +131,7 @@ class RedHatLikeDistro < Distro
 
   def install_build_tools
     [
-      'dnf -y install git-core curl rubygem-rake rubygem-json',
+      'dnf -y install git-core rubygem-rake rubygem-json',
     ]
   end
 end
