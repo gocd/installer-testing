@@ -96,13 +96,13 @@ class DebianLikeDistro < Distro
   def prepare_commands
     [
       "bash -lc 'rm -rf /etc/apt/apt.conf.d/docker-clean'",
-      "bash -lc 'DEBIAN_FRONTEND=noninteractive apt-get update && apt-get install -y curl gnupg2'"
+      "bash -lc 'DEBIAN_FRONTEND=noninteractive apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y curl gnupg2'"
     ]
   end
 
   def install_build_tools
     [
-      "bash -lc 'DEBIAN_FRONTEND=noninteractive apt-get install -y rake git curl'"
+      "bash -lc 'DEBIAN_FRONTEND=noninteractive apt-get install -y git-core curl rake'"
     ]
   end
 end
@@ -113,7 +113,7 @@ class RedHatLikeDistro < Distro
   end
 
   def container_extra_run_args
-    "--privileged"
+    "--privileged" # Needed for init system / systemd :-(
   end
 
   def container_command
@@ -131,7 +131,7 @@ class RedHatLikeDistro < Distro
 
   def install_build_tools
     [
-      'dnf -y install git-core rubygem-rake rubygem-json',
+      'dnf -y install git-core curl rubygem-rake rubygem-json',
     ]
   end
 end
