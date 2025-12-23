@@ -102,7 +102,7 @@ class DebianLikeDistro < Distro
 
   def install_build_tools
     [
-      "bash -lc 'DEBIAN_FRONTEND=noninteractive apt-get install -y git-core curl rake'"
+      "bash -lc 'DEBIAN_FRONTEND=noninteractive apt-get install -y git-core rake'"
     ]
   end
 end
