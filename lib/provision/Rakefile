@@ -143,7 +143,7 @@ end
 
     def server_running?
       begin
-        sh(%(curl -I http://127.0.0.1:8153/go/about -o about.txt))
+        sh(%(curl --silent --head http://127.0.0.1:8153/go/about -o about.txt))
         return true if File.readlines('about.txt').any? { |l| l['200 OK'] }
       rescue StandardError => e
         return false
@@ -156,11 +156,10 @@ end
       Timeout.timeout(120) do
         loop do
           begin
-            puts '.'
             break if server_running?
           rescue StandardError => e
           end
-          sleep 5
+          sleep 1
         end
       end
     end
@@ -175,13 +174,13 @@ end
       Timeout.timeout(180) do
         loop do
           break if agent_running?(v)
-          sleep 5
+          sleep 1
         end
       end
     end
 
     def agent_running?(v)
-      sh "curl http://127.0.0.1:8153/go/api/agents -H 'Accept: #{v}' > temp.txt"
+      sh "curl --silent http://127.0.0.1:8153/go/api/agents -H 'Accept: #{v}' > temp.txt"
       agents = JSON.parse(File.read('temp.txt'))['_embedded']['agents']
 
       if agents.any? { |a| a['agent_state'] == 'Idle' }
@@ -192,7 +191,7 @@ end
     end
 
     def agent_any?(v)
-      sh "curl http://127.0.0.1:8153/go/api/agents -H 'Accept: #{v}' > temp.txt"
+      sh "curl --silent http://127.0.0.1:8153/go/api/agents -H 'Accept: #{v}' > temp.txt"
       agents = JSON.parse(File.read('temp.txt'))['_embedded']['agents']
 
       if agents.any? { |a| ['Idle', 'Missing', 'Lost Contact'].include? a['agent_state'] }
@@ -241,7 +240,7 @@ end
       cctray_response = nil
       Timeout.timeout(300) do
         loop do
-          sh "curl http://127.0.0.1:8153/go/cctray.xml > temp.txt"
+          sh "curl --silent http://127.0.0.1:8153/go/cctray.xml > temp.txt"
           cctray_response = File.read('temp.txt')
           status = cctray_response.match(/lastBuildStatus="(\w+)"/)
           puts "Pipeline build status #{status.captures}" if status
@@ -250,7 +249,7 @@ end
             puts 'Pipeline completed successfully'
             break
           end
-          sleep 2
+          sleep 1
         end
       end
     rescue Timeout::Error
@@ -258,7 +257,7 @@ end
     end
 
     def current_gocd_version
-      sh "curl http://127.0.0.1:8153/go/api/version -H 'Accept: #{GoCDApiVersion::V1}' > version.txt"
+      sh "curl --silent http://127.0.0.1:8153/go/api/version -H 'Accept: #{GoCDApiVersion::V1}' > version.txt"
       Gem::Version.new(JSON.parse(File.read('version.txt'))['version'])
     end
 
@@ -286,14 +285,14 @@ end
       dashboard_response = nil
       Timeout.timeout(180) do
         loop do
-          sleep 5
-          sh "curl http://127.0.0.1:8153/go/api/dashboard -H 'Accept: #{dashboard_api_version}' > temp.txt"
+          sh "curl --silent http://127.0.0.1:8153/go/api/dashboard -H 'Accept: #{dashboard_api_version}' > temp.txt"
           dashboard_response = JSON.parse(File.read('temp.txt'))
 
           if dashboard_response['_embedded']['pipeline_groups'][0]['_embedded']['pipelines'][0]['_embedded']['instances'][0]['_embedded']['stages'][0]['status'] == 'Passed'
             puts 'Pipeline completed with success'
             break
           end
+          sleep 1
         end
       end
     rescue Timeout::Error
@@ -301,7 +300,7 @@ end
     end
 
     def server_version
-      sh "curl http://127.0.0.1:8153/go/api/version -H 'Accept: #{GoCDApiVersion::V1}' > temp.txt"
+      sh "curl --silent http://127.0.0.1:8153/go/api/version -H 'Accept: #{GoCDApiVersion::V1}' > temp.txt"
       versions = JSON.parse(File.read('temp.txt'))
       "#{versions['version']}-#{versions['build_number']}"
     end
