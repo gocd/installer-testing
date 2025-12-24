@@ -38,6 +38,26 @@ class GoCDApiVersion
   V8 = 'application/vnd.go.cd.v8+json'.freeze
 end
 
+def sh_fail_if(cmd, &is_error)
+  output_capture = ""
+
+  Open3.popen3(cmd) do |_, stdout, stderr, wait_thr|
+    stdout.each do |line|
+      puts line              # stream live
+      output_capture << line # capture
+    end
+    stderr.each do |line|
+      $stderr.puts line      # stream live
+      output_capture << line # capture
+    end
+
+    status = wait_thr.value
+    raise "Install failed with status (#{status}) and command [#{cmd}]" unless status.success?
+  end
+
+  raise "Install failed with error in output of [#{cmd}]!" if is_error and is_error.call output_capture
+end
+
 class DebianLike
   include Rake::DSL
 
@@ -53,7 +73,9 @@ class DebianLike
   end
 
   def install(pkg_name, pkg_version)
-    sh("DEBIAN_FRONTEND=noninteractive apt-get install -y #{pkg_name}=#{pkg_version}")
+    sh_fail_if("DEBIAN_FRONTEND=noninteractive apt-get install -y #{pkg_name}=#{pkg_version}") do |output|
+      output.include? "(error)" or output.include? "(warning)"
+    end
   end
 end
 
@@ -73,27 +95,6 @@ class RedHatLike
     sh_fail_if("dnf install -y --enablerepo='gocd*' --setopt=install_weak_deps=true #{pkg_name}-#{pkg_version}") do |output|
       output.include? "scriptlet failed" or output.include? "(error)" or output.include? "(warning)"
     end
-  end
-
-  private
-  def sh_fail_if(cmd, &is_error)
-    output_capture = ""
-
-    Open3.popen3(cmd) do |_, stdout, stderr, wait_thr|
-      stdout.each do |line|
-        puts line              # stream live
-        output_capture << line # capture
-      end
-      stderr.each do |line|
-        $stderr.puts line      # stream live
-        output_capture << line # capture
-      end
-
-      status = wait_thr.value
-      raise "Install failed with status (#{status}) and command [#{cmd}]" unless status.success?
-    end
-
-    raise "Install failed with error in output of [#{cmd}]!" if is_error and is_error.call output_capture
   end
 end
 
