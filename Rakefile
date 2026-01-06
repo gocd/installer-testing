@@ -96,7 +96,7 @@ class DebianLikeDistro < Distro
   def prepare_commands
     [
       "bash -lc 'rm -rf /etc/apt/apt.conf.d/docker-clean'",
-      "bash -lc 'DEBIAN_FRONTEND=noninteractive apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y curl gnupg2'"
+      "bash -lc 'DEBIAN_FRONTEND=noninteractive apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y curl gnupg2 extrepo && extrepo enable temurin && DEBIAN_FRONTEND=noninteractive apt-get update'",
     ]
   end
 
