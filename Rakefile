@@ -168,6 +168,7 @@ task :test_installers do |t|
   boxes = [
     DebianLikeDistro.new('ubuntu', '22.04', t.name),
     DebianLikeDistro.new('ubuntu', '24.04', t.name),
+    DebianLikeDistro.new('ubuntu', '26.04', t.name),
     DebianLikeDistro.new('debian', '12-slim', t.name),
     DebianLikeDistro.new('debian', '13-slim', t.name),
     RedHatLikeDistro.new('almalinux', '8', t.name, 'almalinux/8-init'),
@@ -192,6 +193,7 @@ task :upgrade_tests do |t|
   upgrade_boxes = [
     DebianLikeDistro.new('ubuntu', '22.04', t.name),
     DebianLikeDistro.new('ubuntu', '24.04', t.name),
+    DebianLikeDistro.new('ubuntu', '26.04', t.name),
     DebianLikeDistro.new('debian', '12-slim', t.name),
     DebianLikeDistro.new('debian', '13-slim', t.name),
     RedHatLikeDistro.new('almalinux', '8', t.name, 'almalinux/8-init'),
