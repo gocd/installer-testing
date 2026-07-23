@@ -1,40 +1,32 @@
 #!/usr/bin/env bash
 
-if [ $# -ne 2 ]; then
+if [ $# -ne 2 ] || { [ "$1" != "server" ] && [ "$1" != "agent" ]; }; then
     echo " Please provide the following arguments server|agent start|stop"
     exit 1
 fi
 
-if [ "$1" == "agent" ]; then  
+service="go-$1"
+action="$2"
 
-    if [ -f "/etc/init.d/go-agent" ]; then
-        echo " Using /etc/init.d/go-agent to $2 agent "
-        /etc/init.d/go-agent $2
-    elif [ -f "/etc/systemd/system/go-agent.service" ]; then
-        echo " Using systemctl to $2 agent "
-        systemctl $2 go-agent
-    elif [ -f "/etc/init/go-agent.conf" ]; then
-        echo " Using upstart to $2 agent "
-        $2 go-agent
-    else
-        echo " Trying to $2 agent without direct service usage."
-        /usr/share/go-agent/bin/go-agent $2
+set -euo pipefail
+
+# On a failed start, dump the relevant wrapper log to aid debugging, while
+# retaining the original command's exit code.
+dump_wrapper_log_on_failure() {
+    exit_code=$?
+    if [ "$exit_code" -ne 0 ] && [ "$action" == "start" ]; then
+        wrapper_log="/var/log/$service/$service-wrapper.log"
+        echo " Start of $service failed with exit code $exit_code, dumping $wrapper_log"
+        cat "$wrapper_log" || true # don't let a missing log clobber the original exit code under set -e
     fi
+    exit "$exit_code"
+}
+trap dump_wrapper_log_on_failure EXIT
 
-elif [ "$1" == "server" ]; then  
-
-    if [ -f "/etc/init.d/go-server" ]; then
-        echo " Using /etc/init.d/go-server to $2 server "
-        /etc/init.d/go-server $2
-    elif [ -f "/etc/systemd/system/go-server.service" ]; then
-        echo " Using systemctl to $2 server "
-        systemctl $2 go-server
-    elif [ -f "/etc/init/go-server.conf" ]; then
-        echo " Using upstart to $2 server "
-        $2 go-server
-    else
-        echo " Trying to $2 server without direct service usage."
-        /usr/share/go-server/bin/go-server $2
-      fi
+if [ -f "/etc/systemd/system/$service.service" ]; then
+    echo " Using systemctl to $action $service "
+    systemctl "$action" "$service"
+else
+    echo " Trying to $action $service without direct service usage."
+    "/usr/share/$service/bin/$service" "$action"
 fi
-
