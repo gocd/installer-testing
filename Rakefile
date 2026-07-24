@@ -96,6 +96,7 @@ class DebianLikeDistro < Distro
   def prepare_commands
     [
       "bash -lc 'rm -rf /etc/apt/apt.conf.d/docker-clean'",
+      "bash -lc 'echo LANG=C.UTF-8 > /etc/default/locale'", # Ensure default locale is consistently set for Tanuki wrapper to read if necessary
       "bash -lc 'DEBIAN_FRONTEND=noninteractive apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y curl gnupg2 extrepo && extrepo enable temurin && DEBIAN_FRONTEND=noninteractive apt-get update'",
     ]
   end
