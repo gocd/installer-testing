@@ -231,7 +231,7 @@ end
         loop do
           sh "curl --silent http://127.0.0.1:8153/go/cctray.xml > temp.txt"
           cctray_response = File.read('temp.txt')
-          status = cctray_response.match(/lastBuildStatus="(\w+)"/)
+          status = cctray_response.match(/lastBuildStatus="(\w+)" lastBuildLabel="#{label}"/)
           puts "Pipeline build status #{status.captures}" if status
 
           if cctray_response.include? %(<Project name="#{PIPELINE_NAME} :: defaultStage" activity="Sleeping" lastBuildStatus="Success" lastBuildLabel="#{label}")
