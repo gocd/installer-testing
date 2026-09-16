@@ -63,7 +63,7 @@ class DebianLike
 
   def repo
     sh('install -m 0755 -d /etc/apt/keyrings')
-    sh('curl --silent --fail --location https://download.gocd.org/GOCD-GPG-KEY.asc | gpg --dearmor -o /etc/apt/keyrings/gocd.gpg')
+    sh('curl --silent --show-error --fail --location https://download.gocd.org/GOCD-GPG-KEY.asc | gpg --dearmor -o /etc/apt/keyrings/gocd.gpg')
     sh('chmod a+r /etc/apt/keyrings/gocd.gpg')
     open('/etc/apt/sources.list.d/gocd.list', 'w') do |f|
       f.puts('deb [signed-by=/etc/apt/keyrings/gocd.gpg] https://download.gocd.org /')
@@ -73,6 +73,7 @@ class DebianLike
   end
 
   def install(pkg_name, pkg_version)
+    puts "Installing #{pkg_name} version #{pkg_version}"
     sh_fail_if("DEBIAN_FRONTEND=noninteractive apt-get install -y #{pkg_name}=#{pkg_version}") do |output|
       output.include? "(error)" or output.include? "(warning)"
     end
@@ -83,7 +84,7 @@ class RedHatLike
   include Rake::DSL
 
   def repo
-    sh('curl --silent --fail --location https://download.gocd.org/gocd.repo -o /etc/yum.repos.d/gocd.repo')
+    sh('curl --silent --show-error --fail --location https://download.gocd.org/gocd.repo -o /etc/yum.repos.d/gocd.repo')
 
     # FIXME Temporarily allow SHA1 hashes within signatures on RHEL 9+. Needs to be moved to SHA256 when we can change our signing key
     # or may be an issue with signatures on older RPMs from before a certain point.
@@ -92,6 +93,7 @@ class RedHatLike
   end
 
   def install(pkg_name, pkg_version)
+    puts "Installing #{pkg_name} version #{pkg_version}"
     sh_fail_if("dnf install -y --enablerepo='gocd*' --setopt=install_weak_deps=true #{pkg_name}-#{pkg_version}") do |output|
       output.include? "scriptlet failed" or output.include? "(error)" or output.include? "(warning)"
     end
@@ -153,16 +155,18 @@ end
     end
 
     def wait_to_start
-      puts 'Wait server to come up'
+      puts 'Wait for server to come up'
       Timeout.timeout(120) do
         loop do
           begin
             break if server_running?
           rescue StandardError => e
+            # Ignored
           end
           sleep 1
         end
       end
+      puts 'Server is up'
     end
 
     def server_status
@@ -170,7 +174,7 @@ end
     end
 
     def agent_status
-      puts 'wait for agent to come up'
+      puts 'Wait for agent to come up'
       v = agent_api_version
       Timeout.timeout(180) do
         loop do
@@ -178,51 +182,35 @@ end
           sleep 1
         end
       end
+      puts 'Agent is up'
     end
 
     def agent_running?(v)
       sh "curl --silent http://127.0.0.1:8153/go/api/agents -H 'Accept: #{v}' > temp.txt"
       agents = JSON.parse(File.read('temp.txt'))['_embedded']['agents']
-
-      if agents.any? { |a| a['agent_state'] == 'Idle' }
-        puts 'Agent is up'
-        return true
-      end
-      false
+      return agents.any? { |a| a['agent_state'] == 'Idle' }
     end
 
     def agent_any?(v)
       sh "curl --silent http://127.0.0.1:8153/go/api/agents -H 'Accept: #{v}' > temp.txt"
       agents = JSON.parse(File.read('temp.txt'))['_embedded']['agents']
-
-      if agents.any? { |a| ['Idle', 'Missing', 'Lost Contact'].include? a['agent_state'] }
-        puts 'Agent is up'
-        return true
-      end
-      false
+      return agents.any? { |a| ['Idle', 'Missing', 'Lost Contact'].include? a['agent_state'] }
     end
-
 
     def create_pipeline
       url = 'http://127.0.0.1:8153/go/api/admin/pipelines'
       puts 'create a pipeline'
-      sh(%(curl --silent --fail --location --dump-header - -X POST -H "Accept: #{pipeline_api_version}" -H "Content-Type: application/json" --data "@/configure/provision/filesystem/pipeline.json" #{url}))
+      sh(%(curl --silent --show-error --fail --location --dump-header - -X POST -H "Accept: #{pipeline_api_version}" -H "Content-Type: application/json" --data "@/configure/provision/filesystem/pipeline.json" #{url}))
     end
 
     task :create_pipeline_by_config do
       create_pipeline
     end
 
-    def unpause_pipeline
-      url = "http://127.0.0.1:8153/go/api/pipelines/#{PIPELINE_NAME}/unpause"
-      puts 'unpause the pipeline'
-      sh(%(curl --silent --fail --location --dump-header - -X POST -H "Accept: #{pipeline_pause_api_version}" -H "Confirm: true" -H "X-GoCD-Confirm: true" #{url}))
-    end
-
     def trigger_pipeline
       url = "http://127.0.0.1:8153/go/api/pipelines/#{PIPELINE_NAME}/schedule"
       puts 'trigger the pipeline'
-      sh(%(curl --silent --fail --location --dump-header - -X POST -H "Accept: #{pipeline_schedule_api_version}" -H "Confirm: true" -H "X-GoCD-Confirm: true" #{url}))
+      sh(%(curl --silent --show-error --fail --location --dump-header - -X POST -H "Accept: #{pipeline_schedule_api_version}" -H "Confirm: true" -H "X-GoCD-Confirm: true" #{url}))
     end
 
     task :trigger_pipeline_again do
