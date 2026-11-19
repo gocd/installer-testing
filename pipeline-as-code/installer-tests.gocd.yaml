@@ -43,11 +43,6 @@ pipelines:
             elastic_profile_id: installers-testing-arm64
             tasks:
             - exec:
-                command: bash
-                # See https://github.com/moby/moby/issues/30880#issuecomment-798807332 for why normal docker login to docker.gocd.io as registry mirror doesn't work
-                # Docker uses the wrong credentials when trying to use a registry mirror, so we set the docker.gocd.io creds for Docker Hub
-                arguments: [ -c, 'mkdir -p ~/.docker && echo "{ \"auths\": { \"docker.gocd.io\": { \"auth\": \"$(echo -n "${DOCKERHUB_MIRROR_USERNAME}:${DOCKERHUB_MIRROR_PASSWORD}" | base64)\" } } }" > ~/.docker/config.json' ]
-            - exec:
                 command: rake
                 arguments: [ test_installers ]
           upgrade:
@@ -57,11 +52,6 @@ pipelines:
               UPGRADE_VERSIONS_LIST: 20.5.0-11820
             elastic_profile_id: installers-testing-x64
             tasks:
-            - exec:
-                command: bash
-                # See https://github.com/moby/moby/issues/30880#issuecomment-798807332 for why normal docker login to docker.gocd.io as registry mirror doesn't work
-                # Docker uses the wrong credentials when trying to use a registry mirror, so we set the docker.gocd.io creds for Docker Hub
-                arguments: [ -c, 'mkdir -p ~/.docker && echo "{ \"auths\": { \"docker.gocd.io\": { \"auth\": \"$(echo -n "${DOCKERHUB_MIRROR_USERNAME}:${DOCKERHUB_MIRROR_PASSWORD}" | base64)\" } } }" > ~/.docker/config.json' ]
             - exec:
                 command: rake
                 arguments: [ upgrade_tests ]
